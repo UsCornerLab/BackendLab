@@ -77,40 +77,51 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 1. **Clone the repository:**
 
- ```bash
- git clone https://github.com/your-username/your-repository.git
- cd your-repository
- ```
+   ```bash
+   git clone https://github.com/your-username/your-repository.git
+   cd your-repository
+   ```
 
 2. **Install dependencies:**
 
- ```bash
- composer install
- npm install
- ```
+   ```bash
+   composer install
+   npm install
+   ```
 
 3. **Copy the example environment file and modify the environment variables:**
 
- ```bash
- cp .env.example .env
- ```
+   ```bash
+   cp .env.example .env
+   ```
 
-4. **Generate an application key:**
+4. **Set up the database connection in the `.env` file:**
 
- ```bash
- php artisan key:generate
- ```
+   ```properties
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=store_db
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
 
-5. **Run the database migrations:**
+5. **Generate an application key:**
 
- ```bash
- php artisan migrate
- ```
+   ```bash
+   php artisan key:generate
+   ```
 
-6. **Start the local development server:**
+6. **Run the database migrations:**
 
- ```bash
- php artisan serve
- ```
+   ```bash
+   php artisan migrate
+   ```
+
+7. **Start the local development server:**
+
+   ```bash
+   php artisan serve
+   ```
 
 Your Laravel application should now be up and running on `http://localhost:8000`.
