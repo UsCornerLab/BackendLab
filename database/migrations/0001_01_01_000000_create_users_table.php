@@ -8,16 +8,29 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
+     * first_name -> varhcar
+     * last_name -> varchar
+     * email -> varchar > unique
+     * age -> int
+     * role > bigint
+     * address_id > bigint
+     * id_photo > bigint
+     * verified > bool
+     * 
+     * @return void
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('User', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('first_name');
+            $table->string('last_name');
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
+            $table->integer('age');
+            $table->foreignId('id')->constrained('Role')->onDelete('cascade');
+            $table->foreignId('address_id')->nullable()->constrained('addresses')->onDelete('set null');
+            $table->foreignId('id_photo')->nullable()->constrained('photos')->onDelete('set null');
+            $table->boolean('verified')->default(false);
             $table->timestamps();
         });
 
@@ -42,7 +55,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('User');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
     }
