@@ -25,11 +25,12 @@ return new class extends Migration
             $table->id();
             $table->string('first_name');
             $table->string('last_name');
+            $table->string('password');
             $table->string('email')->unique();
             $table->integer('age');
-            $table->foreignId('id')->constrained('Role')->onDelete('cascade');
-            $table->foreignId('address_id')->nullable()->constrained('addresses')->onDelete('set null');
-            $table->foreignId('id_photo')->nullable()->constrained('photos')->onDelete('set null');
+            $table->foreignId('role_id')->constrained('Role')->onDelete('cascade');
+            $table->string('address');
+            $table->string('id_photo_path')->unique();
             $table->boolean('verified')->default(false);
             $table->timestamps();
         });

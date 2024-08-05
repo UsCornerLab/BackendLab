@@ -27,7 +27,7 @@ return new class extends Migration
             $table->string('publisher');
             $table->date('publication_date');
             // $table->foreignId('genre_id')->constrained('Genre')->onDelete("set null");
-            $table->foreignId('category_id')->constrained('Category')->onDelete("set null");
+            $table->foreignId('category_id')->nullable()->constrained('Category')->onDelete("set null");
             $table->timestamps();
         });
     }

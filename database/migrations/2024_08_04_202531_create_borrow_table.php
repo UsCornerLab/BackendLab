@@ -18,7 +18,7 @@ return new class extends Migration
         Schema::create('Borrow', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained("User");
-            $table->foreignId('copy_id')->constrained("Copy_Books");
+            $table->foreignId('copy_id')->constrained("Copy_books");
             $table->timestamps();
         });
     }
