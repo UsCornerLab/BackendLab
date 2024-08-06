@@ -17,9 +17,14 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
         'email',
         'password',
+        'age',
+        'role_id',
+        'address',
+        'verified'
     ];
 
     /**
@@ -32,6 +37,13 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+     /**
+     * The primary key associated with the table.
+     *
+     * @var string
+     */
+    protected $primaryKey = 'id';
+
     /**
      * Get the attributes that should be cast.
      *
@@ -40,8 +52,12 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
+            'verified' => 'boolean',
             'password' => 'hashed',
         ];
+    }
+
+    public function role() {
+        return $this->belongsTo(Role::class);
     }
 }
