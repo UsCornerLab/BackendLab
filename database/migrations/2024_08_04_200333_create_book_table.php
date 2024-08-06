@@ -26,6 +26,8 @@ return new class extends Migration
             $table->string('ISBN');
             $table->string('publisher');
             $table->date('publication_date');
+            $table->string('cover_image_path')->unique();
+            $table->integer("accession_number")->unique();
             // $table->foreignId('genre_id')->constrained('Genre')->onDelete("set null");
             $table->foreignId('category_id')->nullable()->constrained('Category')->onDelete("set null");
             $table->timestamps();

@@ -32,6 +32,7 @@ return new class extends Migration
             $table->string('address');
             $table->string('id_photo_path')->unique();
             $table->boolean('verified')->default(false);
+            $table->rememberToken();
             $table->timestamps();
         });
 
