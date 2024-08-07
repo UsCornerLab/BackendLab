@@ -24,6 +24,7 @@ class User extends Authenticatable
         'age',
         'role_id',
         'address',
+        'id_photo_path',
         'verified'
     ];
 
@@ -54,6 +55,8 @@ class User extends Authenticatable
         return [
             'verified' => 'boolean',
             'password' => 'hashed',
+            'role_id' => 'integer',
+            'age' => 'integer'
         ];
     }
 

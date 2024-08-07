@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('title');
             $table->string('author');
             $table->text('request_letter');
-            $table->enum('status',['Pending', 'Approved', 'Rejected', 'Delivered']);
+            $table->enum('status',['Pending', 'Approved', 'Rejected', 'Delivered'])->default("Pending");
             $table->timestamps();
         });
     }

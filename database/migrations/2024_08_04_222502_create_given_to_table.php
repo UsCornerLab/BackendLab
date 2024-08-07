@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('Given_to', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("copy_id")->constrained("Copy_books")->onDelete("cascade");
+            $table->foreignId("copy_id")->constrained("Book")->onDelete("cascade");
             $table->foreignId("borrowed_by")->constrained("Origin_from")->onDelete("cascade");
             $table->timestamps();
         });
