@@ -41,4 +41,20 @@ class Book extends Model
     public function authors() {
         return $this->belongsToMany(Author::class, 'Author_Book');
     }
+
+    public function borrow() {
+        return $this->hasOne(Borrow::class, 'copy_id');
+    }
+
+    public function shelf() {
+        return $this->hasOne(Shelf::class);
+    }
+
+    public function givenTo() {
+        return $this->hasOne(GivenTo::class);
+    }
+
+    public function from(){
+        return $this->belongsTo(Origin::class);
+    } 
 }
