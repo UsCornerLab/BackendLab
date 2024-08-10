@@ -14,7 +14,7 @@ class AuthController extends Controller
     public function register(Request $request) {
         try {
 
-            $request->validate([
+            $data = $request->validate([
                 "firstName" => 'required|string|max:255',
                 "lastName" => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:User',
@@ -25,13 +25,13 @@ class AuthController extends Controller
             ]);
     
             $user = User::create([
-                'first_name' => $request->firstName,
-                'last_name' => $request->lastName,
-                'email' => $request->email,
-                'password' => bcrypt($request->password),
-                'age' => $request->age,
-                'address' => $request->address,
-                'id_photo_path' => $request->id_photo_path,
+                'first_name' => $data['firstName'],
+                'last_name' => $data['lastName'],
+                'email' => $data['email'],
+                'password' => bcrypt($data['password']),
+                'age' => $data['age'],
+                'address' => $data['address'],
+                'id_photo_path' => $data['id_photo_path'],
             ]);
 
             
@@ -50,17 +50,17 @@ class AuthController extends Controller
         try {
             $data = $request->validate([
                 'email'=> 'required|string|email|max:255',
-                'password' => 'required|string|min:8',
+                'password' => 'required|string',
             ]);
 
-            if(!Auth::attempt($data)) {
+            if(!$token = auth()->attempt($data)) {
                 return response([
                     'message' => "Email or Password are wrong"
                 ]);
             }
 
-            $user = Auth::user();
-            $token = $user->createToken("access_token", expiresAt:now()->addDay())->plainTextToken;
+            $user = auth()->user();
+            // $token = $user->createToken("access_token", expiresAt:now()->addDay())->plainTextToken;
 
             return response()->json([
                 "message"=> "Logged In successfully",
@@ -75,14 +75,9 @@ class AuthController extends Controller
 
     public function logout(Request $request) {
         try{
-            if (Auth::check()) {
-                $user = Auth::user();
-                // $token = $request->user()->currentAccessToken();
-                $user->tokens()->delete();
-                return response()->json(['message' => "Logged out successfully"], 200);
-            }
-
-            return response()->json(['message' => 'Not Authenticated'], 401);
+            auth()->logout(true);
+            return response()->json(['message' => "Logged out successfully"], 200);
+           
         } catch (Exception $e) {
             Log::error('An error occurred: ' . $e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
