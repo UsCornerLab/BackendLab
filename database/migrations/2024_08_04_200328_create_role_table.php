@@ -14,8 +14,8 @@ return new class extends Migration
     {
         Schema::create('Role', function (Blueprint $table) {
             $table->id();
-            $table->enum('role_type', ['admin', 'librarian', 'user']);
-            $table->timestamps();
+            $table->enum('role_type', ['admin', 'librarian', 'user'])->default('user');
+           
         });
     }
 

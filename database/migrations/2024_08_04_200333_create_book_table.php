@@ -30,6 +30,9 @@ return new class extends Migration
             $table->integer("accession_number")->unique();
             // $table->foreignId('genre_id')->constrained('Genre')->onDelete("set null");
             $table->foreignId('category_id')->nullable()->constrained('Category')->onDelete("set null");
+            $table->string("added_by");
+            $table->enum("status", ["Available", "Reserved", "Borrowed"])->default("Available");
+            $table->foreignId("from")->constrained('Origin_from');
             $table->timestamps();
         });
     }
