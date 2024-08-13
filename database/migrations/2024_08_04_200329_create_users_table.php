@@ -28,7 +28,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('email')->unique();
             $table->integer('age');
-            $table->foreignId('role_id')->default(3)->constrained('Role')->onDelete('cascade');
+            $table->foreignId('role_id')->default(3)->constrained('Role');
             $table->string('address');
             $table->string('id_photo_path')->unique();
             $table->boolean('verified')->default(false);
