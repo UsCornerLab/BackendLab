@@ -9,6 +9,8 @@ class Book extends Model
 {
     use HasFactory;
 
+    public $table = 'Book';
+
     protected $fillable = [
         "title",
         'ISBN',
@@ -34,6 +36,10 @@ class Book extends Model
         return $this->belongsTo(Category::class);
     }
 
+     public function origin(){
+        return $this->belongsTo(Origin::class);
+    } 
+
     public function genres() {
         return $this->belongsToMany(Genre::class, 'Genre_Book');
     }
@@ -43,7 +49,7 @@ class Book extends Model
     }
 
     public function borrow() {
-        return $this->hasOne(Borrow::class, 'copy_id');
+        return $this->hasOne(Borrow::class);
     }
 
     public function shelf() {
@@ -54,7 +60,5 @@ class Book extends Model
         return $this->hasOne(GivenTo::class);
     }
 
-    public function from(){
-        return $this->belongsTo(Origin::class);
-    } 
+   
 }

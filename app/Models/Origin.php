@@ -9,6 +9,8 @@ class Origin extends Model
 {
     use HasFactory;
 
+    public $table = 'Origin_from';
+
     protected $fillable = [
         'org_name',
         'type'

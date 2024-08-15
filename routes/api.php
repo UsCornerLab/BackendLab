@@ -1,6 +1,7 @@
 <?php
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BookController;
 use Illuminate\Http\Request;
 use Laravel\Sanctum\Sanctum;
 use Illuminate\Support\Facades\Storage;
@@ -10,12 +11,12 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
 
-Route::middleware(['auth'])->get('/profile', function (Request $request) { // to check the authentication
-    try{
-        return $request->user();
-    } catch (Exception $e) {
-        return response(['error' => $e->getMessage()], 500);
-    }
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('/books', [BookController::class,'getAll']);
+    Route::post('/books', [BookController::class,'create']);
+    Route::delete('/books/{id}', [BookController::class,'delete']);
+
 });
 
 Route::get('/files/{fileName}', function ($fileName) {
