@@ -37,7 +37,7 @@ class Book extends Model
     }
 
      public function origin(){
-        return $this->belongsTo(Origin::class);
+        return $this->belongsTo(Origin::class, 'from');
     } 
 
     public function genres() {

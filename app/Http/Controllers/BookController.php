@@ -46,14 +46,15 @@ class BookController extends Controller
             "accession_number" => $data['accession_number'],
             'added_by'=> $data['added_by'],
         ]);
-        $origin = $book->origin()->create([
-            'org_name' => $request->org_name,
+        $origin = $book->origin()->createOrFirst([
+            'org_name' => $request->from_org_name,
             'type' => $data['from_type'],
         ]);
+        $book->from = $origin->id;
+
         $category = $book->category()->createOrFirst(['category_name' => $data['category']]);
         $book->category_id = $category->id;
 
-        $book->from = $origin->id;
 
        
         $authorId = [];
@@ -80,8 +81,8 @@ class BookController extends Controller
             $book->cover_image_path = $fileUrl;
 
         }
+        
         $book->save();
-
         
         $book->authors()->attach($authorId);
         $book->genres()->attach($genreId);
@@ -136,7 +137,8 @@ class BookController extends Controller
 
     public function getOne($id) {
        try {
-         $book = Book::with(['authors' => function ($query) {
+         $book = Book::with([
+            'authors' => function ($query) {
             $query->select('Authors.author_name');
          },
          'genres' => function ($query) {
@@ -147,6 +149,9 @@ class BookController extends Controller
          },
          "shelf" => function ($query) {
             $query->select('Shelf_book.id', 'Shelf_book.book_id', 'Shelf_book.shelf_name', 'Shelf_book.shelf_number');
+         },
+         "origin" => function ($query) {
+            $query->select('Origin_from.id', 'Origin_from.org_name', 'Origin_from.type');
          }])->find($id);
 
          return response()->json([
@@ -223,10 +228,8 @@ class BookController extends Controller
             $book->authors()->sync($authorId);
         }
 
-        $origin = $book->origin()->update(
-                ["id", $book->from],
-                [
-                'org_name' => $request->org_name,
+        $book->origin()->update([
+                'org_name' => $request->from_org_name,
                 'type' => $data['from_type'],
             ]);
 

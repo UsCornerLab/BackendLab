@@ -14,6 +14,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/books', [BookController::class,'getAll']);
+    Route::get('/books/{id}', [BookController::class,'getOne']);
     Route::post('/books', [BookController::class,'create']);
     Route::delete('/books/{id}', [BookController::class,'delete']);
     Route::put('/books/{id}', [BookController::class,'update']);
