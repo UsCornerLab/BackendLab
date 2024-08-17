@@ -9,6 +9,8 @@ class Shelf extends Model
 {
     use HasFactory;
 
+    public $table = "Shelf_book";
+
     protected $fillable = [
         'shelf_name',
         'shelf_number',

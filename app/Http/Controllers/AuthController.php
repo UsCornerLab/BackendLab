@@ -6,9 +6,9 @@ use App\Models\User;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use Exception;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+
 class AuthController extends Controller
 {
     public function register(Request $request) {
@@ -27,7 +27,7 @@ class AuthController extends Controller
             if($request->hasFile('id_photo')) {
                 $file = $request->file('id_photo');
                 $fileName = time().'_'.$file->getClientOriginalName();
-                $filePath = $file->storeAs('ID_photos', $fileName,'public');
+                $filePath = $file->storeAs('ID_photos', $fileName, 'public');
 
                 $url = Storage::url($filePath);
 
@@ -74,6 +74,8 @@ class AuthController extends Controller
 
             $user = auth()->user();
             // $token = $user->createToken("access_token", expiresAt:now()->addDay())->plainTextToken;
+
+            $user['role'] = $user->role->role_type;
 
             return response()->json([
                 'status'=> true,
