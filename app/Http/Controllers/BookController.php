@@ -284,4 +284,53 @@ class BookController extends Controller
         }
 
     }
+    public function search(Request $request)
+    {
+        
+        $validated = $request->validate([
+            'title' => 'string|nullable',
+            'author' => 'string|nullable',
+            'category' => 'string|nullable',  
+            'status' => 'in:available,borrowed,reserved|nullable',
+            'page' => 'integer|nullable',
+            'limit' => 'integer|nullable'
+        ]);
+    
+    
+        $query = Book::query();
+    
+        
+        if ($request->has('title')) {
+            $query->where('title', 'like', '%' . $request->input('title') . '%');
+        }
+    
+        if ($request->has('author')) {
+            $author = $request->input('author');
+            $query->whereHas('authors', function ($q) use ($author) {
+                $q->where('author_name', 'like', '%' . $author . '%');
+            });
+        }
+    
+        if ($request->has('category')) {
+            $category = $request->input('category');
+            $query->whereHas('category', function ($q) use ($category) {
+                $q->where('category_name', 'like', '%' . $category . '%');
+            });
+        }
+    
+        if ($request->has('status')) {
+            $status = $request->input('status');
+            $query->where('status', $status);
+        }
+    
+        
+        $page = $request->input('page', 1); // Default to page 1 if not provided
+        $limit = $request->input('limit', 10); // Default to 10 items per page if not provided
+    
+        $books = $query->paginate($limit, ['*'], 'page', $page);
+    
+        
+        return response()->json($books);
+    }
+    
 }
