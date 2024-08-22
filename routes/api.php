@@ -32,3 +32,4 @@ Route::get('/files/{fileName}', function ($fileName) {
     return abort(404, 'File not found');
 });
 
+Route::get('/book/search', [BookController::class, 'search']);
