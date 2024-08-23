@@ -127,7 +127,13 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
     php artisan db:seed --class:RoleSeeder
     ```
 
-7. **Start the local development server:**
+7. **Create a Symbolic Link for the public folder**
+
+    ```bash
+    php artisan storage:link
+    ```
+
+8. **Start the local development server:**
 
     ```bash
     php artisan serve

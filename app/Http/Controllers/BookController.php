@@ -119,6 +119,8 @@ class BookController extends Controller
          },
          "shelf" => function ($query) {
             $query->select('Shelf_book.id', 'Shelf_book.book_id', 'Shelf_book.shelf_name', 'Shelf_book.shelf_number');
+         }, "origin" => function ($query) {
+            $query->select('Origin_from.id', 'Origin_from.org_name', 'Origin_from.type');
          }])->get();
 
          return response()->json([
@@ -157,7 +159,7 @@ class BookController extends Controller
          return response()->json([
                 'status'=> true,
                 'message' => 'Books fetched successfully',
-                "books" => $book
+                "book" => $book
             ], 200);
        } catch (Exception $e) {
             Log::error('An error occurred: ' . $e->getMessage());
