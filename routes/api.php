@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
+Route::put('/updateProfile/{id}', [AuthController::class, 'updateProfile'])->middleware('auth');
 
 Route::middleware(['auth'])->group(function () {
 
