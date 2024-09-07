@@ -16,21 +16,24 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/books', [BookController::class,'getAll']);
     Route::get('/books/{id}', [BookController::class,'getOne']);
-    Route::post('/books', [BookController::class,'create']);
-    Route::delete('/books/{id}', [BookController::class,'delete']);
-    Route::put('/books/{id}', [BookController::class,'update']);
 
+    Route::middleware(['access:librarian,admin'])->group(function () {
+        Route::post('/books', [BookController::class,'create']);
+        Route::delete('/books/{id}', [BookController::class,'delete']);
+        Route::put('/books/{id}', [BookController::class,'update']);
+    });
+
+    Route::get('/books/search', [BookController::class, 'search']);
 
 });
 
-Route::get('/files/{fileName}', function ($fileName) {
+Route::middleware(['access:librarian,admin'])->get('/files/{fileName}', function ($fileName) {
     // You can add additional checks here if necessary
 
-    if (Storage::disk('public')->exists('ID_photos/' . $fileName)) {
-        return response()->download(storage_path('app/public/ID_photos/' . $fileName));
+    if (Storage::disk('public')->exists("ID_photos/$fileName")) {
+        return response()->download(storage_path("app/public/ID_photos/$fileName"));
     }
 
     return abort(404, 'File not found');
 });
 
-Route::get('/book/search', [BookController::class, 'search']);
