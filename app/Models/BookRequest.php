@@ -11,10 +11,15 @@ class BookRequest extends Model
 
     protected $fillable = [
         'user_id',
+        'name',
+        'id',
+        'email',
         'title', 
         'author', 
-        'request_letter', 
-        "status"
+        'isbn',
+        'publisher',
+        'recommendation',
+        'status'
     ];
 
     protected $casts = [
