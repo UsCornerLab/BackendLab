@@ -53,7 +53,7 @@ class Book extends Model
     }
 
     public function shelf() {
-        return $this->hasOne(Shelf::class);
+        return $this->hasOne(Shelf::class, "book_id", "id");
     }
 
     public function givenTo() {

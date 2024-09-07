@@ -4,7 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use \App\Http\Middleware\ErrorHandlerMiddleware;
-use App\Http\Middleware\loggingMiddleware;
+use App\Http\Middleware\LoggingMiddleware;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
@@ -14,7 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias(['auth' => \App\Http\Middleware\Authenticate::class]);
-        $middleware->append(loggingMiddleware::class);
+        $middleware->append(LoggingMiddleware::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

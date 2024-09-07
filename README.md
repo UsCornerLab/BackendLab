@@ -100,6 +100,14 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
     ```properties
     APP_URL=http://localhost:8000
 
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=library_db
+    DB_USERNAME=root
+    DB_PASSWORD=
+
+     #* OR to test using existing records (login credentials are on the postman documentation)
+
     DB_CONNECTION=mysql
     DB_HOST=mysql-3b8e0a1c-alientex-b147.k.aivencloud.com
     DB_PORT=16788
@@ -109,7 +117,6 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
     FILESYSTEM_DISK=public
 
-    JWT_SECRET=ekRflmriIXmaBO8XywyTLGnpRrJXxIlyCVWlFMaja77thXEGKJfTfb9F9qrBisca
 
 
     ```
@@ -118,6 +125,7 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
     ```bash
     php artisan key:generate
+    php artisan jwt:secret
     ```
 
 6. **Run the database migrations:**
@@ -128,7 +136,13 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
     ```
 
-7. **Start the local development server:**
+7. **Create a Symbolic Link for the public folder**
+
+    ```bash
+    php artisan storage:link
+    ```
+
+8. **Start the local development server:**
 
     ```bash
     php artisan serve
