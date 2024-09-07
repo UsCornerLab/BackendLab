@@ -36,7 +36,7 @@ Route::get('/files/{fileName}', function ($fileName) {
     return abort(404, 'File not found');
 });
 Route::middleware(['auth:api'])->group(function () {
-    Route::post('/book-requests', [BookRequestController::class, 'store']); 
+    Route::post('/book-requests/{id}', [BookRequestController::class, 'store']); 
     Route::get('/book-requests/{id}', [BookRequestController::class, 'show']);
     Route::put('/book-requests/{id}', [BookRequestController::class, 'update']);
     Route::delete('/book-requests/{id}', [BookRequestController::class, 'destroy']);
