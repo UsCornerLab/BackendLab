@@ -3,13 +3,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookController;
 use Illuminate\Http\Request;
-use Laravel\Sanctum\Sanctum;
 use Illuminate\Support\Facades\Storage;
 
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
+Route::get('/user', [AuthController::class, 'getUser'])->middleware('auth');
 Route::put('/updateProfile/{id}', [AuthController::class, 'updateProfile'])->middleware('auth');
 
 Route::middleware(['auth'])->group(function () {
