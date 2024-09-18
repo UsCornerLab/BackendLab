@@ -3,13 +3,23 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookController;
+<<<<<<< HEAD
+=======
+use Illuminate\Http\Request;
+>>>>>>> 0282c90 (✨ feat(route):)
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\BookRequestController;
 use App\Http\Controllers\FileController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+<<<<<<< HEAD
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('access');
+=======
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
+Route::get('/user', [AuthController::class, 'getUser'])->middleware('auth');
+Route::put('/updateProfile/{id}', [AuthController::class, 'updateProfile'])->middleware('auth');
+>>>>>>> 0282c90 (✨ feat(route):)
 
 
 Route::middleware(['access'])->group(function () {

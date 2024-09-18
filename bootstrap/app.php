@@ -6,6 +6,8 @@ use Illuminate\Foundation\Configuration\Middleware;
 use \App\Http\Middleware\ErrorHandlerMiddleware;
 use \App\Http\Middleware\AccessMiddleware;
 use App\Http\Middleware\LoggingMiddleware;
+use \App\Http\Middleware\Authenticate;
+
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
@@ -14,10 +16,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+<<<<<<< HEAD
         $middleware->alias([
             'access' => \App\Http\Middleware\Authenticate::class,
             'role' => AccessMiddleware::class
         ]);
+=======
+        $middleware->alias(['auth' => Authenticate::class]);
+        $middleware->alias(['access' => AccessMiddleware::class]);
+>>>>>>> 0282c90 (✨ feat(route):)
         $middleware->append(LoggingMiddleware::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {

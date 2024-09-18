@@ -184,6 +184,7 @@ class AuthController extends Controller
 
     public function getUser(Request $request) {
         $user = auth()->user();
+<<<<<<< HEAD
         $user['role'] = $user->role;
 
         return response()->json([
@@ -192,4 +193,13 @@ class AuthController extends Controller
         ]);
     }
 
+=======
+        $user['role'] = $user->role->role_type;
+
+        return response()->json([
+            'status'=> true,
+            "user" => $user
+        ], 200);
+    }
+>>>>>>> 0282c90 (✨ feat(route):)
 }
