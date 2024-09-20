@@ -56,7 +56,7 @@ class BookController extends Controller
         $book->category_id = $category->id;
 
 
-       
+
         $authorId = [];
         $genreId = [];
 
@@ -69,24 +69,25 @@ class BookController extends Controller
             array_push( $genreId, $result->id );
         }
 
-       
+
 
         if ($request->hasFile('cover_image')) {
             $file = $request->file('cover_image');
-            $fileName = now().'_'.$file->getClientOriginalName();
+            $fileName = time().'_'.$file->getClientOriginalName();
             $filePath = $file->storeAs('bookCovers', $fileName, 'public');
 
             $fileUrl = Storage::url($filePath);
-            
+            // $fileUrl = asset('storage/' . $filePath);
+
             $book->cover_image_path = $fileUrl;
 
         }
-        
+
         $book->save();
-        
+
         $book->authors()->attach($authorId);
         $book->genres()->attach($genreId);
-        
+
         Shelf::create([
             'shelf_name'=> $data['shelf_name'],
             'shelf_number'=> $data['shelf_number'],
@@ -133,7 +134,7 @@ class BookController extends Controller
             return response()->json(['status'=> false,'message' => $e->getMessage()], 500);
 
         }
-       
+
 
     }
 
@@ -166,7 +167,7 @@ class BookController extends Controller
             return response()->json(['status'=> false,'message' => $e->getMessage()], 500);
 
         }
-       
+
 
     }
 
@@ -199,7 +200,7 @@ class BookController extends Controller
 
         if ($request->hasFile('cover_image')) {
             $filePath = $this->getFilePath($book->cover_image_path);
-            
+
             if(Storage::disk('public')->exists($filePath)) {
                 Storage::disk('public')->delete($filePath);
             }
@@ -208,9 +209,9 @@ class BookController extends Controller
                 $filePath = $file->storeAs('bookCovers', $fileName, 'public');
 
                 $fileUrl = Storage::url($filePath);
-                
+
                 $book->cover_image_path = $fileUrl;
-            
+
         }
 
         $category = $book->category()->createOrFirst(['category_name' => $request->category]);
@@ -253,7 +254,7 @@ class BookController extends Controller
             return response()->json(['status'=> false,'message' => $e->getMessage()], 500);
 
         }
-    } 
+    }
 
     public function delete($id) {
         try {
@@ -267,7 +268,7 @@ class BookController extends Controller
             }
 
             $filePath = $this->getFilePath($book->cover_image_path);
-            
+
             if(Storage::disk('public')->exists($filePath)) {
                 Storage::disk('public')->delete($filePath);
             }
@@ -288,51 +289,51 @@ class BookController extends Controller
     }
     public function search(Request $request)
     {
-        
+
         $validated = $request->validate([
             'title' => 'string|nullable',
             'author' => 'string|nullable',
-            'category' => 'string|nullable',  
+            'category' => 'string|nullable',
             'status' => 'in:available,borrowed,reserved|nullable',
             'page' => 'integer|nullable',
             'limit' => 'integer|nullable'
         ]);
-    
-    
+
+
         $query = Book::query();
-    
-        
+
+
         if ($request->has('title')) {
             $query->where('title', 'like', '%' . $request->input('title') . '%');
         }
-    
+
         if ($request->has('author')) {
             $author = $request->input('author');
             $query->whereHas('authors', function ($q) use ($author) {
                 $q->where('author_name', 'like', '%' . $author . '%');
             });
         }
-    
+
         if ($request->has('category')) {
             $category = $request->input('category');
             $query->whereHas('category', function ($q) use ($category) {
                 $q->where('category_name', 'like', '%' . $category . '%');
             });
         }
-    
+
         if ($request->has('status')) {
             $status = $request->input('status');
             $query->where('status', $status);
         }
-    
-        
+
+
         $page = $request->input('page', 1); // Default to page 1 if not provided
         $limit = $request->input('limit', 10); // Default to 10 items per page if not provided
-    
+
         $books = $query->paginate($limit, ['*'], 'page', $page);
-    
-        
+
+
         return response()->json($books);
     }
-    
+
 }
