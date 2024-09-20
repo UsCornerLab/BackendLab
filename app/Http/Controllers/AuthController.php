@@ -172,7 +172,7 @@ class AuthController extends Controller
 
     public function logout(Request $request) {
         try{
-            auth()->logout(true);
+            auth()->logout();
             return response()->json(['status'=> true, 'message' => "Logged out successfully"], 200);
            
         } catch (Exception $e) {
@@ -184,7 +184,7 @@ class AuthController extends Controller
 
     public function getUser(Request $request) {
         $user = auth()->user();
-<<<<<<< HEAD
+
         $user['role'] = $user->role;
 
         return response()->json([
@@ -192,14 +192,4 @@ class AuthController extends Controller
             "user" => $user,
         ]);
     }
-
-=======
-        $user['role'] = $user->role->role_type;
-
-        return response()->json([
-            'status'=> true,
-            "user" => $user
-        ], 200);
-    }
->>>>>>> 0282c90 (✨ feat(route):)
 }

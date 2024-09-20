@@ -16,22 +16,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 5d332ed (🐞 fix(middleware):)
+
         $middleware->alias([
             'access' => \App\Http\Middleware\Authenticate::class,
             'role' => AccessMiddleware::class
         ]);
-<<<<<<< HEAD
-=======
-        $middleware->alias(['auth' => Authenticate::class]);
-        $middleware->alias(['access' => AccessMiddleware::class]);
->>>>>>> 0282c90 (✨ feat(route):)
-=======
-        
->>>>>>> 5d332ed (🐞 fix(middleware):)
+
         $middleware->append(LoggingMiddleware::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
