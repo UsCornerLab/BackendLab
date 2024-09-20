@@ -182,4 +182,13 @@ class AuthController extends Controller
     
     }
 
+    public function getUser(Request $request) {
+        $user = auth()->user();
+        $user['role'] = $user->role->role_type;
+
+        return response()->json([
+            'status'=> true,
+            "user" => $user
+        ], 200);
+    }
 }
