@@ -204,7 +204,7 @@ class BookController extends Controller
                 Storage::disk('public')->delete($filePath);
             }
                 $file = $request->file('cover_image');
-                $fileName = now().'_'.$file->getClientOriginalName();
+                $fileName = time().'_'.$file->getClientOriginalName();
                 $filePath = $file->storeAs('bookCovers', $fileName, 'public');
 
                 $fileUrl = Storage::url($filePath);
