@@ -12,7 +12,7 @@ return new class extends Migration
     {
         Schema::create('book_request', function (Blueprint $table) {
             $table->id(); 
-            $table->foreignId('user_id')->constrained('users')->onDelete("cascade");
+            $table->foreignId('user_id')->constrained('User')->onDelete("cascade");
             $table->string('name');
             $table->string('book_id'); 
             $table->string('email');

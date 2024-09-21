@@ -172,7 +172,7 @@ class AuthController extends Controller
 
     public function logout(Request $request) {
         try{
-            auth()->logout(true);
+            auth()->logout();
             return response()->json(['status'=> true, 'message' => "Logged out successfully"], 200);
            
         } catch (Exception $e) {
@@ -184,11 +184,12 @@ class AuthController extends Controller
 
     public function getUser(Request $request) {
         $user = auth()->user();
-        $user['role'] = $user->role->role_type;
+
+        $user['role'] = $user->role;
 
         return response()->json([
             'status'=> true,
-            "user" => $user
-        ], 200);
+            "user" => $user,
+        ]);
     }
 }

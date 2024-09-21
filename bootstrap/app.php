@@ -16,11 +16,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+
         $middleware->alias([
             'access' => \App\Http\Middleware\Authenticate::class,
             'role' => AccessMiddleware::class
         ]);
-        
+
         $middleware->append(LoggingMiddleware::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
