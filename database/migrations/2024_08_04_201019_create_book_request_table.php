@@ -16,11 +16,11 @@ return new class extends Migration
             $table->string('name');
             $table->string('book_id'); 
             $table->string('email');
-            $table->string('title');
+            $table->string('title'); // required
             $table->string('author');
-            $table->string('isbn');
+            $table->string('isbn'); // Uncomment if needed
             $table->string('publisher');
-            $table->text('recommendation');
+            $table->string('recommendation')->nullable(); // Add this line for the recommendation image path
             $table->enum('status', ['Pending', 'Approved', 'Rejected', 'Delivered'])->default('Pending');
             $table->timestamps();
         });
