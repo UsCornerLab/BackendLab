@@ -11,6 +11,12 @@ use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
+    protected function getFilePath($url) {
+        $delimiter = "storage";
+
+        return explode($delimiter, $url)[1];
+    }
+
     public function register(Request $request) {
         try {
 
@@ -40,6 +46,17 @@ class AuthController extends Controller
                     'address' => $data['address'],
                     'id_photo_path' => $url,
                 ]);
+
+                if ($request->has('role')) {
+                    $role = Role::firstOrCreate(['role_type' => $request->role]);
+                    $user->role_id = $role->id;
+                    $user->save();
+                }
+
+                if ($request->has('verified')) {
+                    $user->verified = $request->verified;
+                    $user->save();
+                }
             } else {
                 return response()->json(['status'=> false,'message' => "ID photo required"], 500);
             }
@@ -50,6 +67,74 @@ class AuthController extends Controller
             return response()->json([
                 'status'=> true,
                 'message' => 'Registered successfully',
+            ], 201);
+
+        } catch (Exception $e) {
+            Log::error('An error occurred: ' . $e->getMessage());
+            return response()->json(['status'=> false,'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function updateProfile(Request $request, $id) {
+        try {
+
+            $data = $request->validate([
+                "firstName" => 'string|max:255',
+                "lastName" => 'string|max:255',
+                'email' => 'string|email|max:255',
+                'password' => 'string|min:8',
+                'age' => 'integer',
+                "address" => 'string|max:255',
+                // "id_photo" => "file|max:10240",
+            ]);
+            $user = User::find($id);
+
+            if($request->hasFile('id_photo')) {
+                $filePath = $this->getFilePath($user->id_photo_path);
+            
+                if(Storage::disk('public')->exists($filePath)) {
+                    Storage::disk('public')->delete($filePath);
+                }
+
+                $file = $request->file('id_photo');
+                $fileName = time().'_'.$file->getClientOriginalName();
+                $filePath = $file->storeAs('ID_photos', $fileName, 'public');
+
+                $url = Storage::url($filePath);
+
+                $user->update([
+                    'first_name' => $data['firstName'],
+                    'last_name' => $data['lastName'],
+                    'email' => $data['email'],
+                    'password' => bcrypt($data['password']),
+                    'age' => $data['age'],
+                    'address' => $data['address'],
+                    'id_photo_path' => $url,
+                ]);
+            
+            } else {
+                $user->update([
+                    'first_name' => $data['firstName'],
+                    'last_name' => $data['lastName'],
+                    'email' => $data['email'],
+                    'password' => bcrypt($data['password']),
+                    'age' => $data['age'],
+                    'address' => $data['address'],
+                ]);
+            }
+    
+            if ($request->has('role')) {
+                    $role = Role::firstOrCreate(['role_type' => $request->role]);
+                    $user->role_id = $role->id;
+                    $user->save();
+                }
+
+            
+    
+            return response()->json([
+                'status'=> true,
+                'message' => 'User updated successfully',
+                "user" => $user,
             ], 201);
 
         } catch (Exception $e) {
@@ -92,7 +177,7 @@ class AuthController extends Controller
 
     public function logout(Request $request) {
         try{
-            auth()->logout(true);
+            auth()->logout();
             return response()->json(['status'=> true, 'message' => "Logged out successfully"], 200);
            
         } catch (Exception $e) {
@@ -102,4 +187,55 @@ class AuthController extends Controller
     
     }
 
+    public function getUser(Request $request) {
+        
+
+        try{
+            $user = auth()->user();
+
+            $user['role'] = $user->role;
+
+            return response()->json([
+                'status'=> true,
+                "user" => $user,
+            ]);
+           
+        } catch (Exception $e) {
+            Log::error('An error occurred: ' . $e->getMessage());
+            return response()->json(['status'=> false,'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getUsers(Request $request) {
+        
+
+        try{
+            $users = User::with([
+                "role" => function ($query) {
+                $query->select('id', 'role_type');
+            }])->get();
+
+            return response()->json([
+                'status'=> true,
+                "users" => $users,
+            ]);
+        } catch (Exception $e) {
+            Log::error('An error occurred: ' . $e->getMessage());
+            return response()->json(['status'=> false,'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function verifyUser(Request $request, $id) {
+        try {
+            $user = User::find($id);
+
+            $user->verified = true;
+            $user->save();
+            
+            return response()->json(['status' => true, "message" => "user successfully verified"]);
+        } catch (Exception $e) {
+            Log::error('An error occurred: ' . $e->getMessage());
+            return response()->json(['status'=> false,'message' => $e->getMessage()], 500);
+        }
+    }
 }

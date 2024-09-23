@@ -33,6 +33,7 @@ return new class extends Migration
             $table->string("added_by");
             $table->enum("status", ["Available", "Reserved", "Borrowed"])->default("Available");
             $table->foreignId("from")->constrained('Origin_from');
+            $table->boolean("active")->default(true);
             $table->timestamps();
         });
     }
