@@ -52,6 +52,11 @@ class AuthController extends Controller
                     $user->role_id = $role->id;
                     $user->save();
                 }
+
+                if ($request->has('verified')) {
+                    $user->verified = $request->verified;
+                    $user->save();
+                }
             } else {
                 return response()->json(['status'=> false,'message' => "ID photo required"], 500);
             }
@@ -183,13 +188,54 @@ class AuthController extends Controller
     }
 
     public function getUser(Request $request) {
-        $user = auth()->user();
+        
 
-        $user['role'] = $user->role;
+        try{
+            $user = auth()->user();
 
-        return response()->json([
-            'status'=> true,
-            "user" => $user,
-        ]);
+            $user['role'] = $user->role;
+
+            return response()->json([
+                'status'=> true,
+                "user" => $user,
+            ]);
+           
+        } catch (Exception $e) {
+            Log::error('An error occurred: ' . $e->getMessage());
+            return response()->json(['status'=> false,'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getUsers(Request $request) {
+        
+
+        try{
+            $users = User::with([
+                "role" => function ($query) {
+                $query->select('id', 'role_type');
+            }])->get();
+
+            return response()->json([
+                'status'=> true,
+                "users" => $users,
+            ]);
+        } catch (Exception $e) {
+            Log::error('An error occurred: ' . $e->getMessage());
+            return response()->json(['status'=> false,'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function verifyUser(Request $request, $id) {
+        try {
+            $user = User::find($id);
+
+            $user->verified = true;
+            $user->save();
+            
+            return response()->json(['status' => true, "message" => "user successfully verified"]);
+        } catch (Exception $e) {
+            Log::error('An error occurred: ' . $e->getMessage());
+            return response()->json(['status'=> false,'message' => $e->getMessage()], 500);
+        }
     }
 }
