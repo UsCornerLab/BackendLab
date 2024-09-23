@@ -6,7 +6,8 @@ use App\Http\Controllers\BookController;
 use Illuminate\Http\Request;
 use Laravel\Sanctum\Sanctum;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\BookRequestController;
+use App\Http\Controllers\BookSupportRequestController;
+use App\Http\Controllers\SupportedBooksController;
 use App\Http\Controllers\FileController;
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -36,9 +37,12 @@ Route::get('/files/{fileName}', function ($fileName) {
     return abort(404, 'File not found');
 });
 Route::middleware(['auth:api'])->group(function () {
-    Route::get('/book-requests', [BookRequestController::class, 'showAll']); 
-    Route::post('/book-requests/{id}', [BookRequestController::class, 'store']); 
-    Route::get('/book-requests/{id}', [BookRequestController::class, 'show']);
-    Route::put('/book-requests/{id}', [BookRequestController::class, 'update']);
-    Route::delete('/book-requests/{id}', [BookRequestController::class, 'destroy']);
+    Route::post('/book-support-requests', [BookSupportRequestController::class, 'store']);
+    Route::put('/book-support-requests/{id}/review', [BookSupportRequestController::class, 'review']);
+    
+    Route::post('/supported-books', [SupportedBooksController::class, 'store']);
+    Route::get('/supported-books', [SupportedBooksController::class, 'index']);
+    Route::get('/supported-books/{id}', [SupportedBooksController::class, 'show']);
+    Route::put('/supported-books/{id}', [SupportedBooksController::class, 'update']);
+    Route::delete('/supported-books/{id}', [SupportedBooksController::class, 'destroy']);
 });
