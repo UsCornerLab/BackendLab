@@ -335,4 +335,33 @@ class BookController extends Controller
         return response()->json($books);
     }
 
+    public function activate(Request $request, $id) {
+        try {
+            $book = Book::find($id);
+
+            $book->active = true;
+            $book->save();
+
+            return response()->json(["status" => true, "message" => "book activated successfully"]);
+        } catch (Exception $e) {
+            Log::error('An error occurred: ' . $e->getMessage());
+            return response()->json(['status'=> false,'message' => $e->getMessage()], 500);
+        }
+
+    }
+
+    public function deactivate(Request $request, $id) {
+        try {
+            $book = Book::find($id);
+
+            $book->active = false;
+            $book->save();
+
+            return response()->json(["status" => true, "message" => "book deactivated successfully"]);
+        } catch (Exception $e) {
+            Log::error('An error occurred: ' . $e->getMessage());
+            return response()->json(['status'=> false,'message' => $e->getMessage()], 500);
+        }
+
+    }
 }

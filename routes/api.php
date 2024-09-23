@@ -17,6 +17,10 @@ Route::middleware(['access'])->group(function () {
     
     Route::get('/user', [AuthController::class, 'getUser']);
     Route::put('/updateProfile/{id}', [AuthController::class, 'updateProfile']);
+    Route::middleware(['role:librarian,admin'])->group(function () {
+        Route::get('/users', [AuthController::class, 'getUsers']);
+        Route::put('/verifyUser/{id}', [AuthController::class, 'verifyUser']);
+    });
     
     Route::get('/books', [BookController::class,'getAll']);
     Route::get('/books/{id}', [BookController::class,'getOne']);
@@ -26,6 +30,8 @@ Route::middleware(['access'])->group(function () {
         Route::delete('/books/{id}', [BookController::class,'delete']);
         Route::put('/books/{id}', [BookController::class,'update']);
         Route::get('/files/{fileName}', [FileController::class, 'serveFile']);
+        Route::put('/books/activate/{id}', [BookController::class,'activate']);
+        Route::put('/books/deactivate/{id}', [BookController::class,'deactivate']);
     });
 
     Route::get('/books/search', [BookController::class, 'search']);
