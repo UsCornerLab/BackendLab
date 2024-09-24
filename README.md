@@ -72,6 +72,12 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 -   PHP >= 7.3
 -   Composer
 -   Node.js and npm
+### dependence
+- "php": "^8.2",
+- "laravel/framework": "^11.9",
+- "laravel/sanctum": "^4.0",
+- "laravel/tinker": "^2.9",
+- "tymon/jwt-auth": "^2.1"
 
 ### Installation
 
