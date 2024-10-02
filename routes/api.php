@@ -35,7 +35,10 @@ Route::middleware(['access'])->group(function () {
     });
 
     Route::get('/books/search', [BookController::class, 'search']);
+
 });
+
+Route::post('/books/{id}/borrow', [BookController::class, 'borrow']);
 
 Route::middleware(['auth:api'])->group(function () {
     Route::post('/book-support-requests', [BookSupportRequestController::class, 'store']);

@@ -60,5 +60,9 @@ class Book extends Model
         return $this->hasOne(GivenTo::class);
     }
 
+    public function checkStatus()//to check current status
+    {
+        return $this->status; 
+    }
    
 }

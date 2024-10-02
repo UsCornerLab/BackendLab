@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Borrow extends Model
 {
     use HasFactory;
-
+    public $table = 'Borrow';
     protected $fillable = [
         'user_id',
         'copy_id',
