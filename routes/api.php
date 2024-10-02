@@ -43,3 +43,4 @@ Route::middleware(['access'])->group(function () {
 
     Route::middleware(['role:librarian,admin'])->get('/files/{fileName}', [FileController::class, 'serveFile']);
 });
+Route::post('/books/{id}/borrow', [BookController::class, 'borrow']);
