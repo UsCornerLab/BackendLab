@@ -7,6 +7,7 @@ use App\Models\Book;
 use App\Models\Category;
 use App\Models\Genre;
 use App\Models\Shelf;
+use App\Models\borrow;
 use Illuminate\Http\Request;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -364,4 +365,45 @@ class BookController extends Controller
         }
 
     }
+    public function borrow(Request $request,$id)
+{
+    $user = auth()->user();
+    if ($user) {
+        if ($user->verified) {
+            $book = Book::find($id);
+            $status = $book->checkStatus(); 
+            if ($status == "Available") {
+                $borrowRecord = new Borrow();
+                $borrowRecord->user_id = $user->id;
+                $borrowRecord->copy_id = $id; 
+                $borrowRecord->status = 'Borrowed'; 
+                $borrowRecord->save(); 
+                $book->status = 'Borrowed';
+                $book->save();
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'You have successfully borrowed the book.',
+                    'borrow_record' => $borrowRecord, 
+                ]);}
+            else{
+                return response()->json([
+                    'status' => true,
+                    'message' => 'You can borrow books but the book is not Available .',
+                ]);
+            }         
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'You must verify your account to borrow books.',
+            ], 403); 
+        }
+    } else {
+        return response()->json([
+            'status' => false,
+            'message' => 'User not authenticated.',
+        ], 401); // Unauthorized
+    }
+}
+
 }
