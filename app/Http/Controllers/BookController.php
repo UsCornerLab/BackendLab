@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Genre;
 use App\Models\Shelf;
 use App\Models\borrow;
+use App\Models\Origin;
 use Illuminate\Http\Request;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -47,13 +48,19 @@ class BookController extends Controller
             "accession_number" => $data['accession_number'],
             'added_by'=> $data['added_by'],
         ]);
-        $origin = $book->origin()->firstOrCreate([
+        $origin = Origin::firstOrCreate([
+            'org_name' => $request->from_org_name,
+            'type' => $data['from_type'],
+        ], [
             'org_name' => $request->from_org_name,
             'type' => $data['from_type'],
         ]);
         $book->from = $origin->id;
 
-        $category = $book->category()->firstOrCreate(['category_name' => $data['category']]);
+        $category = Category::firstOrCreate(
+            ['category_name' => $data['category']],
+            ['category_name' => $data['category']]
+        );
         $book->category_id = $category->id;
 
 
@@ -62,11 +69,17 @@ class BookController extends Controller
         $genreId = [];
 
         foreach($data['author'] as $author) {
-            $result = Author::firstOrCreate(['author_name' => $author]);
+            $result = Author::firstOrCreate(
+                ['author_name' => $author], 
+                ['author_name' => $author]
+            );
             array_push( $authorId, $result->id );
         }
         foreach($data['genre'] as $genre) {
-            $result = Genre::firstOrCreate(['genre_name' => $genre]);
+            $result = Genre::firstOrCreate(
+                ['genre_name' => $genre], 
+                ['genre_name' => $genre]
+            );
             array_push( $genreId, $result->id );
         }
 
@@ -216,19 +229,29 @@ class BookController extends Controller
 
         }
 
-        $category = $book->category()->firstOrCreate(['category_name' => $request->category]);
+        $category = Category::firstOrCreate(
+            ['category_name' => $data['category']],
+            ['category_name' => $data['category']]
+        );
         $book->category_id = $category->id;
 
         $genreId = [];
         foreach($data['genre'] as $genre) {
-            $result = Genre::firstOrCreate(['genre_name' => $genre]);
+            $result = Genre::firstOrCreate(
+                ['genre_name' => $genre], 
+                ['genre_name' => $genre]
+            );
+                
             array_push( $genreId, $result->id );
             $book->genres()->sync($genreId);
         }
 
         $authorId = [];
         foreach($data['author'] as $author) {
-            $result = Author::firstOrCreate(['author_name' => $author]);
+            $result = Author::firstOrCreate(
+                ['author_name' => $author], 
+                ['author_name' => $author]
+            );
             array_push( $authorId, $result->id );
             $book->authors()->sync($authorId);
         }
