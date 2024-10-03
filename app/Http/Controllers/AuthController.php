@@ -25,7 +25,7 @@ class AuthController extends Controller
                 "lastName" => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:User',
                 'password' => 'required|string|min:8',
-                'birthDate' => 'required|integer',
+                'birthDate' => 'required|date',
                 "address" => 'required|string|max:255',
                 "id_photo" => "required|file|mimes:jpg,png,jpeg|max:10240",
             ]);

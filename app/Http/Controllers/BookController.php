@@ -47,13 +47,13 @@ class BookController extends Controller
             "accession_number" => $data['accession_number'],
             'added_by'=> $data['added_by'],
         ]);
-        $origin = $book->origin()->createOrFirst([
+        $origin = $book->origin()->firstOrCreate([
             'org_name' => $request->from_org_name,
             'type' => $data['from_type'],
         ]);
         $book->from = $origin->id;
 
-        $category = $book->category()->createOrFirst(['category_name' => $data['category']]);
+        $category = $book->category()->firstOrCreate(['category_name' => $data['category']]);
         $book->category_id = $category->id;
 
 
@@ -62,11 +62,11 @@ class BookController extends Controller
         $genreId = [];
 
         foreach($data['author'] as $author) {
-            $result = Author::createOrFirst(['author_name' => $author]);
+            $result = Author::firstOrCreate(['author_name' => $author]);
             array_push( $authorId, $result->id );
         }
         foreach($data['genre'] as $genre) {
-            $result = Genre::createOrFirst(['genre_name' => $genre]);
+            $result = Genre::firstOrCreate(['genre_name' => $genre]);
             array_push( $genreId, $result->id );
         }
 
@@ -216,19 +216,19 @@ class BookController extends Controller
 
         }
 
-        $category = $book->category()->createOrFirst(['category_name' => $request->category]);
+        $category = $book->category()->firstOrCreate(['category_name' => $request->category]);
         $book->category_id = $category->id;
 
         $genreId = [];
         foreach($data['genre'] as $genre) {
-            $result = Genre::createOrFirst(['genre_name' => $genre]);
+            $result = Genre::firstOrCreate(['genre_name' => $genre]);
             array_push( $genreId, $result->id );
             $book->genres()->sync($genreId);
         }
 
         $authorId = [];
         foreach($data['author'] as $author) {
-            $result = Author::createOrFirst(['author_name' => $author]);
+            $result = Author::firstOrCreate(['author_name' => $author]);
             array_push( $authorId, $result->id );
             $book->authors()->sync($authorId);
         }
