@@ -23,14 +23,14 @@ return new class extends Migration
             $table->id();
             $table->string("title");
             // $table->foreignId('author_id')->constrained('Author_Book')->onDelete("set null");
-            $table->string('ISBN')->unique();
+            $table->string('ISBN')->unique()->nullable();
             $table->string('publisher');
             $table->date('publication_date');
             $table->string('cover_image_path')->unique()->nullable();
             $table->integer("accession_number")->unique();
             // $table->foreignId('genre_id')->constrained('Genre')->onDelete("set null");
             $table->foreignId('category_id')->constrained('Category')->onDelete("cascade");
-            $table->string("added_by");
+            $table->foreignId("added_by")->constrained('User');
             $table->enum("status", ["Available", "Reserved", "Borrowed"])->default("Available");
             $table->foreignId("from")->constrained('Origin_from');
             $table->boolean("active")->default(true);

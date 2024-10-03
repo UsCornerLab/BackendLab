@@ -25,10 +25,10 @@ class BookController extends Controller
        try {
          $data = $request->validate([
             "title"=> "required|string|max:255",
-            "ISBN"=> "required|string|max:255",
+            "ISBN"=> "sometimes|nullable|string|max:255",
             "publisher"=> "required|string|max:255",
             "publication_date"=> "required|date",
-            "cover_image"=> "file|max:10240",
+            "cover_image"=> "sometimes|nullable|file|mimes:jpg,jpeg,png|max:10240",
             "accession_number" => "required|string|max:255",
             "category"=> "required|string",
             "author"=> "required|array",
@@ -36,7 +36,7 @@ class BookController extends Controller
             "from_type" => "required|string|max:255",
             "shelf_name" => "required|string|max:255",
             "shelf_number" => "required|integer",
-            "added_by" => "required|string|max:255",
+            "added_by" => "required|integer|max:255",
         ]);
 
         $book = new Book([
@@ -122,7 +122,8 @@ class BookController extends Controller
             $query->select('Shelf_book.id', 'Shelf_book.book_id', 'Shelf_book.shelf_name', 'Shelf_book.shelf_number');
          }, "origin" => function ($query) {
             $query->select('Origin_from.id', 'Origin_from.org_name', 'Origin_from.type');
-         }])->get();
+         },
+         "added_by"])->get();
 
          return response()->json([
                 'status'=> true,
@@ -155,7 +156,7 @@ class BookController extends Controller
          },
          "origin" => function ($query) {
             $query->select('Origin_from.id', 'Origin_from.org_name', 'Origin_from.type');
-         }])->find($id);
+         }, 'added_by'])->find($id);
 
          return response()->json([
                 'status'=> true,
@@ -176,10 +177,10 @@ class BookController extends Controller
         try {
             $data = $request->validate([
             "title" => "required|string|max:255",
-            "ISBN" => "required|string|max:255",
+            "ISBN" => "required|nullable|string|max:255",
             "publisher" => "required|string|max:255",
             "publication_date" => "required|date",
-            "cover_image" => "file|max:10240",
+            "cover_image" => "sometimes|file|mimes:jpg,jpeg,png|max:10240",
             "accession_number" => "required|string|max:255",
             "category" => "required|string",
             "author" => "required|array",
@@ -187,7 +188,7 @@ class BookController extends Controller
             "from_type" => "required|string|max:255",
             "shelf_name" => "required|string|max:255",
             "shelf_number" => "required|integer",
-            "added_by" => "required|string|max:255",
+            "added_by" => "required|integer|max:255",
         ]);
 
         $book = Book::findOrFail($id);
@@ -197,6 +198,7 @@ class BookController extends Controller
         $book->publisher = $data['publisher'];
         $book->publication_date = $data['publication_date'];
         $book->accession_number = $data['accession_number'];
+        $book->added_by = $data['added_by'];
 
         if ($request->hasFile('cover_image')) {
             $filePath = $this->getFilePath($book->cover_image_path);
@@ -364,6 +366,55 @@ class BookController extends Controller
             return response()->json(['status'=> false,'message' => $e->getMessage()], 500);
         }
 
+    }
+
+    public function getCategories(Request $request) {
+        try {
+            $categories = Category::all();
+
+            return response()->json(['status' => true, "categories" => $categories]);
+        } catch (Exception $e) {
+            Log::error('An error occurred: ' . $e->getMessage());
+            return response()->json(['status'=> false,'message' => $e->getMessage()], 500);
+        }
+
+    }
+
+    public function getAuthors(Request $request) {
+        try {
+            $authors = Author::all();
+
+            return response()->json(['status' => true, "authors" => $authors]);
+        } catch (Exception $e) {
+            Log::error('An error occurred: ' . $e->getMessage());
+            return response()->json(['status'=> false,'message' => $e->getMessage()], 500);
+        }
+
+    }
+
+    public function featuredBook() {
+        try{
+            $books = Book::with(['authors' => function ($query) {
+            $query->select('Authors.author_name');
+         },
+         'genres' => function ($query) {
+            $query->select('Genre.genre_name');
+         },
+         'category' => function ($query) {
+            $query->select('Category.id', 'Category.category_name');
+         },
+         "shelf" => function ($query) {
+            $query->select('Shelf_book.id', 'Shelf_book.book_id', 'Shelf_book.shelf_name', 'Shelf_book.shelf_number');
+         }, "origin" => function ($query) {
+            $query->select('Origin_from.id', 'Origin_from.org_name', 'Origin_from.type');
+         },
+         "added_by"])->orderByDesc('created_at')->take(12)->get();
+
+            return response()->json(["status" => true, "books" => $books]);
+        } catch (Exception $e) {
+            Log::error('An error occurred: ' . $e->getMessage());
+            return response()->json(['status'=> false,'message' => $e->getMessage()], 500);
+        }
     }
     public function borrow(Request $request,$id)
 {

@@ -44,6 +44,10 @@ class Book extends Model
         return $this->belongsToMany(Genre::class, 'Genre_Book');
     }
 
+    public function added_by() {
+        return $this->belongsTo(User::class, "added_by");
+    }
+
     public function authors() {
         return $this->belongsToMany(Author::class, 'Author_Book');
     }

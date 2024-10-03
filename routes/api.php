@@ -12,6 +12,11 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('access');
 
+Route::get('/category', [BookController::class, 'getCategories']);
+Route::get('/author', [BookController::class, 'getAuthors']);
+Route::get('/books/featured', [BookController::class, 'featuredBook']);
+
+
 Route::middleware(['access'])->group(function () {
 
     Route::get('/user', [AuthController::class, 'getUser']);

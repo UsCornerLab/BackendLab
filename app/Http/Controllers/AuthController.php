@@ -25,9 +25,9 @@ class AuthController extends Controller
                 "lastName" => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:User',
                 'password' => 'required|string|min:8',
-                'age' => 'required|integer',
+                'birthDate' => 'required|integer',
                 "address" => 'required|string|max:255',
-                "id_photo" => "required|file|max:10240",
+                "id_photo" => "required|file|mimes:jpg,png,jpeg|max:10240",
             ]);
 
             if($request->hasFile('id_photo')) {
@@ -42,7 +42,7 @@ class AuthController extends Controller
                     'last_name' => $data['lastName'],
                     'email' => $data['email'],
                     'password' => bcrypt($data['password']),
-                    'age' => $data['age'],
+                    'birthDate' => $data['birthDate'],
                     'address' => $data['address'],
                     'id_photo_path' => $url,
                 ]);
@@ -79,14 +79,27 @@ class AuthController extends Controller
         try {
 
             $data = $request->validate([
-                "firstName" => 'string|max:255',
-                "lastName" => 'string|max:255',
-                'email' => 'string|email|max:255',
-                'password' => 'string|min:8',
-                'age' => 'integer',
-                "address" => 'string|max:255',
-                // "id_photo" => "file|max:10240",
+                "firstName" => 'sometimes|string|max:255',
+                "lastName" => 'sometimes|string|max:255',
+                'email' => 'sometimes|string|email|max:255',
+                'password' => 'sometimes|string|min:8',
+                'birthDate' => 'sometimes|date',
+                "address" => 'sometimes|string|max:255',
+                "role" => 'sometimes|string|max:225',
+                "id_photo" => "sometimes|file|mimes:jpg,png,jpeg|max:10240",
             ]);
+
+            if ($request->filled('password')) {
+                $data['password'] = bcrypt($request->input('password'));
+            }
+            if ($request->filled("firstName")) {
+                $data["first_name"] = $data["firstName"];
+                unset($data['firstName']);
+            }
+            if ($request->filled("lastName")) {
+                $data["last_name"] = $data["lastName"];
+                unset($data['lastName']);
+            }
             $user = User::find($id);
 
             if($request->hasFile('id_photo')) {
@@ -102,25 +115,11 @@ class AuthController extends Controller
 
                 $url = Storage::url($filePath);
 
-                $user->update([
-                    'first_name' => $data['firstName'],
-                    'last_name' => $data['lastName'],
-                    'email' => $data['email'],
-                    'password' => bcrypt($data['password']),
-                    'age' => $data['age'],
-                    'address' => $data['address'],
-                    'id_photo_path' => $url,
-                ]);
+                $allData = array_merge($data, ['id_photo_path' => $url]);
+                $user->update($allData);
             
             } else {
-                $user->update([
-                    'first_name' => $data['firstName'],
-                    'last_name' => $data['lastName'],
-                    'email' => $data['email'],
-                    'password' => bcrypt($data['password']),
-                    'age' => $data['age'],
-                    'address' => $data['address'],
-                ]);
+                $user->update($data);
             }
     
             if ($request->has('role')) {
