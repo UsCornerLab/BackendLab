@@ -41,7 +41,7 @@ class BookController extends Controller
 
         $book = new Book([
             'title' => $data['title'],
-            'ISBN'=> $data['ISBN'],
+            'ISBN'=> $data['ISBN'] ?? null,
             'publisher'=> $data['publisher'],
             "publication_date" => $data['publication_date'],
             "accession_number" => $data['accession_number'],
