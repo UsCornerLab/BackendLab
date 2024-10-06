@@ -11,32 +11,21 @@ class BookSupportRequestController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'organization_name' => 'required|string|max:255',
-            'contact_name' => 'nullable|string|max:255',
+            
             'email' => 'required|string|email|max:255',
-            'phone_number' => 'required|string|max:15',
-            'requested_book_titles' => 'required|array',
-            'number_of_books' => 'required|integer|min:1',
             'request_letter' => 'required|file|max:10240|mimes:pdf,docx,jpeg,png',
         ];
-
         $validatedData = $request->validate($rules);
-
-    
         if ($request->hasFile('request_letter')) {
             $path = $request->file('request_letter')->store('request_letters', 'public');
             $validatedData['request_letter'] = $path;
         }
-
-        
-        $validatedData['requested_book_titles'] = json_encode($validatedData['requested_book_titles']);
         $supportRequest = BookSupportRequest::create($validatedData);
 
         return response()->json($supportRequest, 201);
     }
 
-
-    public function review(Request $request, $id)
+    public function review(Request $request, $id)//not working
     {
         $rules = [
             'status' => 'required|in:Approved,Rejected',
@@ -50,4 +39,41 @@ class BookSupportRequestController extends Controller
 
         return response()->json(['message' => 'Request reviewed successfully']);
     }
+    public function approve($id)
+    {
+        $supportRequest = BookSupportRequest::findOrFail($id);
+        $supportRequest->status = 'Approved';
+        $supportRequest->save();
+        return response()->json([
+            'message' => 'Support request approved successfully!',
+            'supportRequest' => $supportRequest,
+        ]);
+    }
+    public function rejected($id)
+    {
+        $supportRequest = BookSupportRequest::findOrFail($id);
+        $supportRequest->status = 'rejected';
+        $supportRequest->save();
+        return response()->json([
+            'message' => 'Support request rejected !',
+            'supportRequest' => $supportRequest,
+        ]);
+    }
+    public function completeForm(Request $request, $id){
+
+        $validatedData = $request->validate([
+            'organization_name' => 'nullable|string|max:255',
+            'contact_name' => 'nullable|string|max:255',
+            'phone_number' => 'nullable|string|max:15',
+            'requested_book_titles' => 'nullable|json',
+            'number_of_books' => 'nullable|integer',
+            'admin_comments' => 'nullable|string',
+        ]);
+        $supportRequest = BookSupportRequest::findOrFail($id);
+        if ($supportRequest->status !== 'Approved') {
+            return response()->json(['message' => 'Request must be approved before completing the form.'], 400);
+        }
+        $supportRequest->update($validatedData);
+        return response()->json(['message' => 'Details updated successfully!', 'request' => $supportRequest]);
+}
 }
