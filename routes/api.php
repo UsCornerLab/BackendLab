@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\BookSupportRequestController;
 use App\Http\Controllers\SupportedBooksController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\BookRecommendationController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -48,4 +49,9 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/supported-books/{id}', [SupportedBooksController::class, 'show']);
     Route::put('/supported-books/{id}', [SupportedBooksController::class, 'update']);
     Route::delete('/supported-books/{id}', [SupportedBooksController::class, 'destroy']);
+    Route::get('/book-recommendations', [BookRecommendationController::class, 'getall']);
+    Route::post('/book-recommendations', [BookRecommendationController::class, 'store']);
+    Route::get('/book-recommendations/{id}', [BookRecommendationController::class, 'show']);
+    Route::put('/book-recommendations/{id}', [BookRecommendationController::class, 'update']);
+    Route::delete('/book-recommendations/{id}', [BookRecommendationController::class, 'destroy']);
 });
