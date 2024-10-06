@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\BookSupportRequestController;
 use App\Http\Controllers\SupportedBooksController;
 use App\Http\Controllers\FileController;
-
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('access');
@@ -42,6 +41,10 @@ Route::post('/books/{id}/borrow', [BookController::class, 'borrow']);
 
 Route::middleware(['auth:api'])->group(function () {
     Route::post('/book-support-requests', [BookSupportRequestController::class, 'store']);
+Route::put('/book-support-requests/{id}/review', [BookSupportRequestController::class, 'review']);
+Route::post('/book-support-requests/{id}/approve', [BookSupportRequestController::class, 'approve']);
+Route::post('/book-support-requests/{id}/rejected', [BookSupportRequestController::class, 'rejected']);
+Route::post('/book-support-requests/{id}/completeForm', [BookSupportRequestController::class, 'completeForm']);
     Route::put('/book-support-requests/{id}/review', [BookSupportRequestController::class, 'review']);
     Route::post('/supported-books', [SupportedBooksController::class, 'store']);
     Route::get('/supported-books', [SupportedBooksController::class, 'index']);
@@ -49,3 +52,4 @@ Route::middleware(['auth:api'])->group(function () {
     Route::put('/supported-books/{id}', [SupportedBooksController::class, 'update']);
     Route::delete('/supported-books/{id}', [SupportedBooksController::class, 'destroy']);
 });
+

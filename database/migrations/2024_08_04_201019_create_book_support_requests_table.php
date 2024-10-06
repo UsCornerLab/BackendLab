@@ -9,13 +9,13 @@ return new class extends Migration
     {
         Schema::create('book_support_requests', function (Blueprint $table) {
             $table->id();
-            $table->string('organization_name');
-            $table->string('contact_name');
-            $table->string('email')->unique();
-            $table->string('phone_number', 15);
-            $table->json('requested_book_titles'); 
-            $table->integer('number_of_books'); 
-            $table->string('request_letter')->nullable(); 
+            $table->string('organization_name')->nullable();
+            $table->string('contact_name')->nullable();
+            $table->string('email')->unique(); 
+            $table->string('phone_number', 15)->nullable();
+            $table->json('requested_book_titles')->nullable(); 
+            $table->integer('number_of_books')->nullable(); 
+            $table->string('request_letter'); 
             $table->enum('status', ['Pending', 'Approved', 'Rejected'])->default('Pending');
             $table->text('admin_comments')->nullable(); 
             $table->timestamps();
