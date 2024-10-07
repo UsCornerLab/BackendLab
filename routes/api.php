@@ -51,6 +51,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::delete('/supported-books/{id}', [SupportedBooksController::class, 'destroy']);
     Route::get('/book-recommendations', [BookRecommendationController::class, 'getall']);
     Route::post('/book-recommendations', [BookRecommendationController::class, 'store']);
+
     Route::get('/book-recommendations/{id}', [BookRecommendationController::class, 'show']);
     Route::put('/book-recommendations/{id}', [BookRecommendationController::class, 'update']);
     Route::delete('/book-recommendations/{id}', [BookRecommendationController::class, 'destroy']);
