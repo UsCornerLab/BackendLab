@@ -21,7 +21,9 @@ class Book extends Model
         'category_id',
         'from',
         'status',
-        'added_by'
+        'added_by',
+        'copies',
+        'available_copies'
     ];
 
     protected $casts = [
@@ -50,6 +52,10 @@ class Book extends Model
 
     public function authors() {
         return $this->belongsToMany(Author::class, 'Author_Book');
+    }
+
+    public function bookReport() {
+        return $this->hasOne(BookReport::class, "book_id");
     }
 
     public function borrow() {

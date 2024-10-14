@@ -39,6 +39,10 @@ Route::middleware(['access'])->group(function () {
         Route::get('/files/{fileName}', [FileController::class, 'serveFile']);
     });
 
+    Route::middleware(["role:librarian"])->group(function () {
+        Route::post("/countBook/{id}", [BookController::class, "countBook"]);
+    });
+
     Route::get('/books/search', [BookController::class, 'search']);
 
 });

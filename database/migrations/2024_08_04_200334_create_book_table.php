@@ -28,6 +28,8 @@ return new class extends Migration
             $table->date('publication_date');
             $table->string('cover_image_path')->unique()->nullable();
             $table->integer("accession_number")->unique();
+            $table->integer("copies")->default(1);
+            $table->integer("available_copies")->default(1);
             // $table->foreignId('genre_id')->constrained('Genre')->onDelete("set null");
             $table->foreignId('category_id')->constrained('Category')->onDelete("cascade");
             $table->foreignId("added_by")->constrained('User');

@@ -50,6 +50,7 @@ class User extends Authenticatable implements JWTSubject
         'role_id',
         'address',
         'id_photo_path',
+        'profile',
         'verified'
     ];
 

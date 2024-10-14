@@ -14,7 +14,7 @@ class AuthController extends Controller
     protected function getFilePath($url) {
         $delimiter = "storage";
 
-        return explode($delimiter, $url)[1];
+        return $url ? explode($delimiter, $url)[1] : "";
     }
 
     public function register(Request $request) {
@@ -28,6 +28,9 @@ class AuthController extends Controller
                 'birthDate' => 'required|date',
                 "address" => 'required|string|max:255',
                 "id_photo" => "required|file|mimes:jpg,png,jpeg|max:10240",
+                "profile" => "sometimes|image|mimes:jpg,png,jpeg|max:10240",
+                "verified" => "sometimes|boolean"
+
             ]);
 
             if($request->hasFile('id_photo')) {
@@ -36,6 +39,7 @@ class AuthController extends Controller
                 $filePath = $file->storeAs('ID_photos', $fileName, 'public');
 
                 $url = Storage::url($filePath);
+
 
                 $user = User::create([
                     'first_name' => $data['firstName'],
@@ -47,16 +51,29 @@ class AuthController extends Controller
                     'id_photo_path' => $url,
                 ]);
 
+
+                if($request->hasFile('profile')) {
+                    $file = $request->file('profile');
+                    $fileName = time().'_'.$file->getClientOriginalName();
+                    $filePath = $file->storeAs('profiles', $fileName, 'public');
+
+                    $url = Storage::url($filePath);
+
+                    $user->profile = $url;
+                    
+                }
+
+
                 if ($request->has('role')) {
-                    $role = Role::firstOrCreate(['role_type' => $request->role]);
+                    $role = Role::firstOrCreate(['role_type' => $request->role], ['role_type' => $request->role]);
                     $user->role_id = $role->id;
-                    $user->save();
                 }
 
                 if ($request->has('verified')) {
                     $user->verified = $request->verified;
-                    $user->save();
                 }
+
+                $user->save();
             } else {
                 return response()->json(['status'=> false,'message' => "ID photo required"], 500);
             }
@@ -87,7 +104,10 @@ class AuthController extends Controller
                 "address" => 'sometimes|string|max:255',
                 "role" => 'sometimes|string|max:225',
                 "id_photo" => "sometimes|file|mimes:jpg,png,jpeg|max:10240",
+                "profile" => "sometimes|file|mimes:jpg,png,jpeg|max:10240",
             ]);
+
+            
 
             if ($request->filled('password')) {
                 $data['password'] = bcrypt($request->input('password'));
@@ -101,6 +121,8 @@ class AuthController extends Controller
                 unset($data['lastName']);
             }
             $user = User::find($id);
+
+            
 
             if($request->hasFile('id_photo')) {
                 $filePath = $this->getFilePath($user->id_photo_path);
@@ -121,13 +143,30 @@ class AuthController extends Controller
             } else {
                 $user->update($data);
             }
-    
-            if ($request->has('role')) {
-                    $role = Role::firstOrCreate(['role_type' => $request->role]);
-                    $user->role_id = $role->id;
-                    $user->save();
+
+            if($request->hasFile('profile')) {
+                $filePath = $this->getFilePath($user->profile);
+            
+                if(Storage::disk('public')->exists($filePath)) {
+                    Storage::disk('public')->delete($filePath);
                 }
 
+                $file = $request->file('profile');
+                $fileName = time().'_'.$file->getClientOriginalName();
+                $filePath = $file->storeAs('profiles', $fileName, 'public');
+
+                $url = Storage::url($filePath);
+
+                $user->profile = $url;
+            
+            }
+    
+            if ($request->has('role')) {
+                    $role = Role::firstOrCreate(['role_type' => $request->role], ['role_type' => $request->role]);
+                    $user->role_id = $role->id;
+                }
+                
+            $user->save();
             
     
             return response()->json([

@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('phone_number', 15);
             $table->json('requested_book_titles'); 
-            $table->integer('number_of_books'); 
+            $table->json('number_of_books'); 
             $table->string('request_letter')->nullable(); 
             $table->enum('status', ['Pending', 'Approved', 'Rejected'])->default('Pending');
             $table->text('admin_comments')->nullable(); 
