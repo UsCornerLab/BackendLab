@@ -12,10 +12,15 @@ class BookRecommendationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function getall()
+    public function getall(Request $request)
     {
-        $recommendations = BookRecommendation::all();
-        return response()->json($recommendations);
+        if ($request->user()->role->role_type == "admin") {
+            $recommendations = BookRecommendation::all();
+            return response()->json($recommendations);
+        } else {
+            $recommendations = BookRecommendation::where('user_id', $request->user()->id)->get();
+            return response()->json($recommendations);
+        }
     }
 
     /**
@@ -71,6 +76,9 @@ class BookRecommendationController extends Controller
     {
         try {
             $recommendation = BookRecommendation::findOrFail($id);
+            if ($recommendation->user_id !== $request->user()->id) {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            }
 
             $validatedData = $request->validate([
                 'book_title' => 'required|string|max:255',
@@ -80,12 +88,7 @@ class BookRecommendationController extends Controller
                 'publisher' => 'nullable|string|max:255',
             ]);
 
-            // Fill empty fields with their previous data
-            foreach ($validatedData as $key => $value) {
-                if (empty($value)) {
-                    $validatedData[$key] = $recommendation->$key;
-                }
-            }
+            $validatedData['status'] = 'Pending';
 
             $recommendation->update($validatedData);
 
@@ -105,11 +108,46 @@ class BookRecommendationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $recommendation = BookRecommendation::findOrFail($id);
-        $recommendation->delete();
+        try {
+            $recommendation = BookRecommendation::findOrFail($id);
+            if ($recommendation->user_id !== $request->user()->id) {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            }
+            $recommendation->delete();
 
-        return response()->json(null, 204);
+            return response()->json(null, 204);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['error' => 'Book recommendation not found', 'message' => $e->getMessage()], 404);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to delete book recommendation', 'message' => $e->getMessage()], 400);
+        }
+    }
+    public function approve(Request $request, $id)
+    {
+        try {
+            $recommendation = BookRecommendation::findOrFail($id);
+            $recommendation->status = 'Approved';
+            $recommendation->save();
+            return response()->json($recommendation);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['error' => 'Book recommendation not found', 'message' => $e->getMessage()], 404);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to approve book recommendation', 'message' => $e->getMessage()], 400);
+        }
+    }
+    public function decline(Request $request, $id)
+    {
+        try {
+            $recommendation = BookRecommendation::findOrFail($id);
+            $recommendation->status = 'Denied';
+            $recommendation->save();
+            return response()->json($recommendation);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['error' => 'Book recommendation not found', 'message' => $e->getMessage()], 404);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to decline book recommendation', 'message' => $e->getMessage()], 400);
+        }
     }
 }

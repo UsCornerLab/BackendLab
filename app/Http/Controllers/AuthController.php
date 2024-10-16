@@ -85,7 +85,7 @@ class AuthController extends Controller
                 'password' => 'string|min:8',
                 'age' => 'integer',
                 "address" => 'string|max:255',
-                // "id_photo" => "file|max:10240",
+                "id_photo" => "file|max:10240",
             ]);
             $user = User::find($id);
 
