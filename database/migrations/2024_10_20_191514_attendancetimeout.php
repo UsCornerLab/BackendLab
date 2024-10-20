@@ -19,7 +19,6 @@ return new class extends Migration {
             $table->enum('status', ['Present', 'Absent', 'Late'])->default('Present');
             $table->timestamps();
         });
-
     }
 
     /**
