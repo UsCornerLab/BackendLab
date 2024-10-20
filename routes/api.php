@@ -50,7 +50,7 @@ Route::middleware(['access'])->group(function () {
         Route::post('/attendances', [AttendanceController::class, 'store']);
         Route::get('/attendances', [AttendanceController::class, 'getall']);
         Route::get('/attendances-user', [AttendanceController::class, 'show']);
-        Route::put('/attendance-status', [AttendanceController::class, 'makestatus']);
+        Route::put('/attendance-status/{id}', [AttendanceController::class, 'makestatus']);
 
 
     });

@@ -54,7 +54,7 @@ class AttendanceController extends Controller
    public function makestatus($id, Request $request)
    {
       try {
-         $attendance = Attendance::where('user_id', $request->user()->id)->find($id);
+         $attendance = Attendance::findOrFail($id);
          if ($attendance == null) {
             return response()->json(['error' => 'Attendance not found'], 404);
          }
