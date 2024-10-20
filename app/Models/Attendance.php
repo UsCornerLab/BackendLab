@@ -20,8 +20,8 @@ class Attendance extends Model
     protected $casts = [
         'user_id' => 'integer',
         'date' => 'date',
-        'time_in' => 'time',
-        'time_out' => 'time',
+        'time_in' => 'datetime',
+        'time_out' => 'datetime',
         'status' => 'string'
     ];
 
