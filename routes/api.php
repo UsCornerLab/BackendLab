@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\BookSupportRequestController;
 use App\Http\Controllers\SupportedBooksController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\BookRecommendationController;
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -18,7 +19,8 @@ Route::get('/category', [BookController::class, 'getCategories']);
 Route::get('/author', [BookController::class, 'getAuthors']);
 Route::get('/books/featured', [BookController::class, 'featuredBook']);
 
-Route::get('/book-recommendations', [BookRecommendationController::class, 'getall']);
+
+
 
 
 
@@ -42,9 +44,14 @@ Route::middleware(['access'])->group(function () {
         Route::put('/books/activate/{id}', [BookController::class, 'activate']);
         Route::put('/books/deactivate/{id}', [BookController::class, 'deactivate']);
         Route::get('/files/{fileName}', [FileController::class, 'serveFile']);
-
+        Route::get('/book-recommendations', [BookRecommendationController::class, 'getall']);
         Route::put('/book-recommendations-approval/{id}', [BookRecommendationController::class, 'approve']);
         Route::put('/book-recommendations-decline/{id}', [BookRecommendationController::class, 'decline']);
+        Route::post('/attendances', [AttendanceController::class, 'store']);
+        Route::get('/attendances', [AttendanceController::class, 'getall']);
+        Route::get('/attendances-user', [AttendanceController::class, 'show']);
+        Route::put('/attendance-status', [AttendanceController::class, 'makestatus']);
+
 
     });
 
