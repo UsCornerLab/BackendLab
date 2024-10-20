@@ -27,10 +27,11 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('password');
             $table->string('email')->unique();
-            $table->integer('age');
+            $table->date('birthDate');
             $table->foreignId('role_id')->default(3)->constrained('Role');
             $table->string('address');
             $table->string('id_photo_path')->unique();
+            $table->string('profile')->unique()->nullable();
             $table->boolean('verified')->default(false);
             $table->rememberToken();
             $table->timestamps();

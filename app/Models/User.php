@@ -46,10 +46,11 @@ class User extends Authenticatable implements JWTSubject
         'last_name',
         'email',
         'password',
-        'age',
+        'birthDate',
         'role_id',
         'address',
         'id_photo_path',
+        'profile',
         'verified'
     ];
 
@@ -81,7 +82,6 @@ class User extends Authenticatable implements JWTSubject
             'verified' => 'boolean',
             'password' => 'hashed',
             'role_id' => 'integer',
-            'age' => 'integer'
         ];
     }
 
@@ -89,8 +89,12 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsTo(Role::class, "role_id");
     }
 
+    public function books() {
+        return $this->hasMany(Book::class, 'added_by');
+    }
+
     public function bookRequest() {
-        return $this->hasOne(BookRequest::class);
+        return $this->hasOne(BookSupportRequest::class);
     }
 
     public function borrow() {

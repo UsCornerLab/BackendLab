@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Author;
 use App\Models\Book;
+use App\Models\BookReport;
 use App\Models\Category;
 use App\Models\Genre;
 use App\Models\Shelf;
 use App\Models\borrow;
+use App\Models\Origin;
 use Illuminate\Http\Request;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -18,17 +20,17 @@ class BookController extends Controller
      protected function getFilePath($url) {
         $delimiter = "storage";
 
-        return explode($delimiter, $url)[1];
+        return $url ? explode($delimiter, $url)[1]: "";
     }
 
     public function create(Request $request) {
        try {
          $data = $request->validate([
             "title"=> "required|string|max:255",
-            "ISBN"=> "required|string|max:255",
+            "ISBN"=> "sometimes|nullable|string|max:255",
             "publisher"=> "required|string|max:255",
             "publication_date"=> "required|date",
-            "cover_image"=> "file|max:10240",
+            "cover_image"=> "sometimes|nullable|file|mimes:jpg,jpeg,png|max:10240",
             "accession_number" => "required|string|max:255",
             "category"=> "required|string",
             "author"=> "required|array",
@@ -36,24 +38,34 @@ class BookController extends Controller
             "from_type" => "required|string|max:255",
             "shelf_name" => "required|string|max:255",
             "shelf_number" => "required|integer",
-            "added_by" => "required|string|max:255",
+            "copies" => "required|integer",
+            "added_by" => "required|integer",
         ]);
 
         $book = new Book([
             'title' => $data['title'],
-            'ISBN'=> $data['ISBN'],
+            'ISBN'=> $data['ISBN'] ?? null,
             'publisher'=> $data['publisher'],
             "publication_date" => $data['publication_date'],
             "accession_number" => $data['accession_number'],
             'added_by'=> $data['added_by'],
+            'copies' => $data["copies"],
+            'available_copies' => $data["copies"]
         ]);
-        $origin = $book->origin()->createOrFirst([
+        
+        $origin = Origin::firstOrCreate([
+            'org_name' => $request->from_org_name,
+            'type' => $data['from_type'],
+        ], [
             'org_name' => $request->from_org_name,
             'type' => $data['from_type'],
         ]);
         $book->from = $origin->id;
 
-        $category = $book->category()->createOrFirst(['category_name' => $data['category']]);
+        $category = Category::firstOrCreate(
+            ['category_name' => $data['category']],
+            ['category_name' => $data['category']]
+        );
         $book->category_id = $category->id;
 
 
@@ -62,11 +74,17 @@ class BookController extends Controller
         $genreId = [];
 
         foreach($data['author'] as $author) {
-            $result = Author::createOrFirst(['author_name' => $author]);
+            $result = Author::firstOrCreate(
+                ['author_name' => $author], 
+                ['author_name' => $author]
+            );
             array_push( $authorId, $result->id );
         }
         foreach($data['genre'] as $genre) {
-            $result = Genre::createOrFirst(['genre_name' => $genre]);
+            $result = Genre::firstOrCreate(
+                ['genre_name' => $genre], 
+                ['genre_name' => $genre]
+            );
             array_push( $genreId, $result->id );
         }
 
@@ -122,7 +140,8 @@ class BookController extends Controller
             $query->select('Shelf_book.id', 'Shelf_book.book_id', 'Shelf_book.shelf_name', 'Shelf_book.shelf_number');
          }, "origin" => function ($query) {
             $query->select('Origin_from.id', 'Origin_from.org_name', 'Origin_from.type');
-         }])->get();
+         },
+         "added_by"])->get();
 
          return response()->json([
                 'status'=> true,
@@ -155,7 +174,7 @@ class BookController extends Controller
          },
          "origin" => function ($query) {
             $query->select('Origin_from.id', 'Origin_from.org_name', 'Origin_from.type');
-         }])->find($id);
+         }, 'added_by'])->find($id);
 
          return response()->json([
                 'status'=> true,
@@ -176,10 +195,10 @@ class BookController extends Controller
         try {
             $data = $request->validate([
             "title" => "required|string|max:255",
-            "ISBN" => "required|string|max:255",
+            "ISBN" => "required|nullable|string|max:255",
             "publisher" => "required|string|max:255",
             "publication_date" => "required|date",
-            "cover_image" => "file|max:10240",
+            "cover_image" => "sometimes|file|mimes:jpg,jpeg,png|max:10240",
             "accession_number" => "required|string|max:255",
             "category" => "required|string",
             "author" => "required|array",
@@ -187,7 +206,9 @@ class BookController extends Controller
             "from_type" => "required|string|max:255",
             "shelf_name" => "required|string|max:255",
             "shelf_number" => "required|integer",
-            "added_by" => "required|string|max:255",
+            "copies" => "required|integer",
+            "available_copies" => "required|integer",
+            "added_by" => "required|integer",
         ]);
 
         $book = Book::findOrFail($id);
@@ -197,6 +218,9 @@ class BookController extends Controller
         $book->publisher = $data['publisher'];
         $book->publication_date = $data['publication_date'];
         $book->accession_number = $data['accession_number'];
+        $book->copies = $data["copies"];
+        $book->available_copies = $data["available_copies"];
+        $book->added_by = $data['added_by'];
 
         if ($request->hasFile('cover_image')) {
             $filePath = $this->getFilePath($book->cover_image_path);
@@ -214,19 +238,29 @@ class BookController extends Controller
 
         }
 
-        $category = $book->category()->createOrFirst(['category_name' => $request->category]);
+        $category = Category::firstOrCreate(
+            ['category_name' => $data['category']],
+            ['category_name' => $data['category']]
+        );
         $book->category_id = $category->id;
 
         $genreId = [];
         foreach($data['genre'] as $genre) {
-            $result = Genre::createOrFirst(['genre_name' => $genre]);
+            $result = Genre::firstOrCreate(
+                ['genre_name' => $genre], 
+                ['genre_name' => $genre]
+            );
+                
             array_push( $genreId, $result->id );
             $book->genres()->sync($genreId);
         }
 
         $authorId = [];
         foreach($data['author'] as $author) {
-            $result = Author::createOrFirst(['author_name' => $author]);
+            $result = Author::firstOrCreate(
+                ['author_name' => $author], 
+                ['author_name' => $author]
+            );
             array_push( $authorId, $result->id );
             $book->authors()->sync($authorId);
         }
@@ -364,6 +398,70 @@ class BookController extends Controller
             return response()->json(['status'=> false,'message' => $e->getMessage()], 500);
         }
 
+    }
+
+    public function getCategories(Request $request) {
+        try {
+            $categories = Category::all();
+
+            return response()->json(['status' => true, "categories" => $categories]);
+        } catch (Exception $e) {
+            Log::error('An error occurred: ' . $e->getMessage());
+            return response()->json(['status'=> false,'message' => $e->getMessage()], 500);
+        }
+
+    }
+
+    public function getAuthors(Request $request) {
+        try {
+            $authors = Author::all();
+
+            return response()->json(['status' => true, "authors" => $authors]);
+        } catch (Exception $e) {
+            Log::error('An error occurred: ' . $e->getMessage());
+            return response()->json(['status'=> false,'message' => $e->getMessage()], 500);
+        }
+
+    }
+
+    public function featuredBook() {
+        try{
+            $books = Book::with(['authors' => function ($query) {
+            $query->select('Authors.author_name');
+         },
+         'genres' => function ($query) {
+            $query->select('Genre.genre_name');
+         },
+         'category' => function ($query) {
+            $query->select('Category.id', 'Category.category_name');
+         },
+         "shelf" => function ($query) {
+            $query->select('Shelf_book.id', 'Shelf_book.book_id', 'Shelf_book.shelf_name', 'Shelf_book.shelf_number');
+         }, "origin" => function ($query) {
+            $query->select('Origin_from.id', 'Origin_from.org_name', 'Origin_from.type');
+         },
+         "added_by"])->orderByDesc('created_at')->take(12)->get();
+
+            return response()->json(["status" => true, "books" => $books]);
+        } catch (Exception $e) {
+            Log::error('An error occurred: ' . $e->getMessage());
+            return response()->json(['status'=> false,'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function countBook(Request $request , $id) {
+        try {
+            $validated = $request->validate([
+                'book_id' => "required|integer",
+            ]);
+
+            $bookReport = BookReport::firstOrCreate($validated, $validated);
+            $bookReport += 1;
+
+        } catch (Exception $e) {
+            Log::error('An error occurred: ' . $e->getMessage());
+            return response()->json(['status'=> false,'message' => $e->getMessage()], 500);
+        }
     }
     public function borrow(Request $request,$id)
 {

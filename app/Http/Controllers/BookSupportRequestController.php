@@ -16,7 +16,7 @@ class BookSupportRequestController extends Controller
             'email' => 'required|string|email|max:255',
             'phone_number' => 'required|string|max:15',
             'requested_book_titles' => 'required|array',
-            'number_of_books' => 'required|integer|min:1',
+            'number_of_books' => 'required|array',
             'request_letter' => 'required|file|max:10240|mimes:pdf,docx,jpeg,png',
         ];
 

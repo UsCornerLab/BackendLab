@@ -13,7 +13,13 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('access');
 
+
+Route::get('/category', [BookController::class, 'getCategories']);
+Route::get('/author', [BookController::class, 'getAuthors']);
+Route::get('/books/featured', [BookController::class, 'featuredBook']);
+
 Route::get('/book-recommendations', [BookRecommendationController::class, 'getall']);
+
 
 
 Route::middleware(['access'])->group(function () {
@@ -40,6 +46,10 @@ Route::middleware(['access'])->group(function () {
         Route::put('/book-recommendations-approval/{id}', [BookRecommendationController::class, 'approve']);
         Route::put('/book-recommendations-decline/{id}', [BookRecommendationController::class, 'decline']);
 
+    });
+
+    Route::middleware(["role:librarian"])->group(function () {
+        Route::post("/countBook/{id}", [BookController::class, "countBook"]);
     });
 
     Route::get('/books/search', [BookController::class, 'search']);
