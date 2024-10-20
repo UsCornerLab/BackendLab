@@ -105,6 +105,7 @@ class AuthController extends Controller
                 "role" => 'sometimes|string|max:225',
                 "id_photo" => "sometimes|file|mimes:jpg,png,jpeg|max:10240",
                 "profile" => "sometimes|file|mimes:jpg,png,jpeg|max:10240",
+
             ]);
 
             

@@ -100,4 +100,8 @@ class User extends Authenticatable implements JWTSubject
     public function borrow() {
         return $this->hasMany(Borrow::class);
     }
+    public function bookRecommendation()
+    {
+        return $this->hasMany(BookRecommendation::class);
+    }
 }

@@ -7,14 +7,19 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\BookSupportRequestController;
 use App\Http\Controllers\SupportedBooksController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\BookRecommendationController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('access');
 
+
 Route::get('/category', [BookController::class, 'getCategories']);
 Route::get('/author', [BookController::class, 'getAuthors']);
 Route::get('/books/featured', [BookController::class, 'featuredBook']);
+
+Route::get('/book-recommendations', [BookRecommendationController::class, 'getall']);
+
 
 
 Route::middleware(['access'])->group(function () {
@@ -23,7 +28,7 @@ Route::middleware(['access'])->group(function () {
     Route::put('/updateProfile/{id}', [AuthController::class, 'updateProfile']);
 
     Route::middleware(['role:librarian,admin'])->group(function () {
-        Route::get('/users', [AuthController::class, 'getUsers']);
+        Route::get('/users', [AuthController::class, 'getAllrs']);
         Route::put('/verifyUser/{id}', [AuthController::class, 'verifyUser']);
     });
 
@@ -37,6 +42,10 @@ Route::middleware(['access'])->group(function () {
         Route::put('/books/activate/{id}', [BookController::class, 'activate']);
         Route::put('/books/deactivate/{id}', [BookController::class, 'deactivate']);
         Route::get('/files/{fileName}', [FileController::class, 'serveFile']);
+
+        Route::put('/book-recommendations-approval/{id}', [BookRecommendationController::class, 'approve']);
+        Route::put('/book-recommendations-decline/{id}', [BookRecommendationController::class, 'decline']);
+
     });
 
     Route::middleware(["role:librarian"])->group(function () {
@@ -57,4 +66,12 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/supported-books/{id}', [SupportedBooksController::class, 'show']);
     Route::put('/supported-books/{id}', [SupportedBooksController::class, 'update']);
     Route::delete('/supported-books/{id}', [SupportedBooksController::class, 'destroy']);
+
+
+    Route::delete('/book-recommendations/{id}', [BookRecommendationController::class, 'destroy']);
+
+    Route::post('/book-recommendations', [BookRecommendationController::class, 'store']);
+    Route::get('/book-recommendations/{id}', [BookRecommendationController::class, 'show']);
+    Route::put('/book-recommendations/{id}', [BookRecommendationController::class, 'update']);
+   
 });
