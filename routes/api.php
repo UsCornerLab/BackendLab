@@ -28,7 +28,7 @@ Route::middleware(['access'])->group(function () {
     Route::put('/updateProfile/{id}', [AuthController::class, 'updateProfile']);
 
     Route::middleware(['role:librarian,admin'])->group(function () {
-        Route::get('/users', [AuthController::class, 'getAllrs']);
+        Route::get('/users', [AuthController::class, 'getUsers']);
         Route::put('/verifyUser/{id}', [AuthController::class, 'verifyUser']);
     });
 
