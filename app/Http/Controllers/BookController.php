@@ -14,10 +14,13 @@ use Illuminate\Http\Request;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Log as Logs;
+use App\Services\LogService;
+
 class BookController extends Controller
 {
 
-     protected function getFilePath($url) {
+    protected function getFilePath($url) {
         $delimiter = "storage";
 
         return $url ? explode($delimiter, $url)[1]: "";
@@ -503,5 +506,52 @@ class BookController extends Controller
         ], 401); // Unauthorized
     }
 }
+
+    public function destroy(Request $request, $id)
+    {
+        try {
+            $book = Book::where('id', $id)->firstOrFail();
+            $book->delete();
+            LogService::record(
+                auth()->user(),
+                'delete',
+                'Book',
+                $book->id,
+                'Delete Book'
+            );
+            return response()->json([
+                'status' => true,
+                'message' => "Book deleted successfully.",
+            ]);
+        } catch (Exception $e) {
+            Log::error('An error occurred: ' . $e->getMessage());
+            return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    // Restore soft deleted user
+    public function restore(Request $request, $id)
+    {
+        try {
+            $book = Book::withTrashed()->where('id', $id)->firstOrFail();
+
+            if ($book->trashed()) {
+                $book->restore();
+                return response()->json(['status' => true, 'message' => "Book restored successfully."]);
+            }
+            LogService::record(
+                auth()->user(),
+                'restore',
+                'User',
+                $book->id,
+                'Restore Deleted User'
+            );
+
+            return response()->json(['status' => false, 'message' => "Error Ouccured, Please try again later."]);
+        } catch (Exception $e) {
+            Log::error('An error occurred: ' . $e->getMessage());
+            return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
 
 }
