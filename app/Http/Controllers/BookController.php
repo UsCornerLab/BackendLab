@@ -14,6 +14,10 @@ use Illuminate\Http\Request;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\BooksImport;
+
+
 class BookController extends Controller
 {
 
@@ -449,7 +453,8 @@ class BookController extends Controller
         }
     }
 
-    public function countBook(Request $request , $id) {
+    public function countBook(Request $request , $id) 
+    {
         try {
             $validated = $request->validate([
                 'book_id' => "required|integer",
@@ -464,44 +469,65 @@ class BookController extends Controller
         }
     }
     public function borrow(Request $request,$id)
-{
-    $user = auth()->user();
-    if ($user) {
-        if ($user->verified) {
-            $book = Book::find($id);
-            $status = $book->checkStatus(); 
-            if ($status == "Available") {
-                $borrowRecord = new Borrow();
-                $borrowRecord->user_id = $user->id;
-                $borrowRecord->copy_id = $id; 
-                $borrowRecord->status = 'Borrowed'; 
-                $borrowRecord->save(); 
-                $book->status = 'Borrowed';
-                $book->save();
+    {
+        $user = auth()->user();
+        if ($user) {
+            if ($user->verified) {
+                $book = Book::find($id);
+                $status = $book->checkStatus(); 
+                if ($status == "Available") {
+                    $borrowRecord = new Borrow();
+                    $borrowRecord->user_id = $user->id;
+                    $borrowRecord->copy_id = $id; 
+                    $borrowRecord->status = 'Borrowed'; 
+                    $borrowRecord->save(); 
+                    $book->status = 'Borrowed';
+                    $book->save();
 
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'You have successfully borrowed the book.',
+                        'borrow_record' => $borrowRecord, 
+                    ]);}
+                else{
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'You can borrow books but the book is not Available .',
+                    ]);
+                }         
+            } else {
                 return response()->json([
-                    'status' => true,
-                    'message' => 'You have successfully borrowed the book.',
-                    'borrow_record' => $borrowRecord, 
-                ]);}
-            else{
-                return response()->json([
-                    'status' => true,
-                    'message' => 'You can borrow books but the book is not Available .',
-                ]);
-            }         
+                    'status' => false,
+                    'message' => 'You must verify your account to borrow books.',
+                ], 403); 
+            }
         } else {
             return response()->json([
                 'status' => false,
-                'message' => 'You must verify your account to borrow books.',
-            ], 403); 
+                'message' => 'User not authenticated.',
+            ], 401); // Unauthorized
         }
-    } else {
-        return response()->json([
-            'status' => false,
-            'message' => 'User not authenticated.',
-        ], 401); // Unauthorized
     }
-}
 
+    
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,csv,txt|max:20480',
+        ]);
+
+        try {
+            Excel::import(new BooksImport, $request->file('file'));
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Books imported successfully'
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Import failed: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

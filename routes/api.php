@@ -12,6 +12,7 @@ use App\Http\Controllers\BookRecommendationController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('access');
+Route::post('/books/import', [BookController::class, 'import']);
 
 
 Route::get('/category', [BookController::class, 'getCategories']);
