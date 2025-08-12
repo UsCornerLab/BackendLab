@@ -21,15 +21,17 @@ use App\Imports\BooksImport;
 class BookController extends Controller
 {
 
-     protected function getFilePath($url) {
+    protected function getFilePath($url) 
+    {
         $delimiter = "storage";
 
         return $url ? explode($delimiter, $url)[1]: "";
     }
 
-    public function create(Request $request) {
-       try {
-         $data = $request->validate([
+    public function create(Request $request) 
+    {
+        try {
+        $data = $request->validate([
             "title"=> "required|string|max:255",
             "ISBN"=> "sometimes|nullable|string|max:255",
             "publisher"=> "required|string|max:255",
@@ -127,7 +129,6 @@ class BookController extends Controller
 
         }
     }
-
 
     public function getAll() {
        try {
@@ -294,7 +295,8 @@ class BookController extends Controller
         }
     }
 
-    public function delete($id) {
+    public function delete($id) 
+    {
         try {
             $book = Book::find($id);
 
@@ -325,6 +327,7 @@ class BookController extends Controller
         }
 
     }
+
     public function search(Request $request)
     {
 
@@ -508,7 +511,6 @@ class BookController extends Controller
             ], 401); // Unauthorized
         }
     }
-
     
     public function import(Request $request)
     {
