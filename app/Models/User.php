@@ -51,7 +51,9 @@ class User extends Authenticatable implements JWTSubject
         'address',
         'id_photo_path',
         'profile',
-        'verified'
+        'verified',
+        'deleted_remark',
+        'deleted_by'
     ];
 
     /**

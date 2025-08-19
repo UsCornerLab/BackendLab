@@ -33,6 +33,9 @@ return new class extends Migration
             $table->string('id_photo_path')->unique();
             $table->string('profile')->unique()->nullable();
             $table->boolean('verified')->default(false);
+            $table->softDeletes();
+            $table->foreignId('deleted_by')->nullable()->constrained('User');
+            $table->string('deleted_remark')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
