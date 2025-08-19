@@ -133,37 +133,41 @@ class BookController extends Controller
         }
     }
 
-    public function getAll() {
-       try {
-         $books = Book::with(['authors' => function ($query) {
-            $query->select('Authors.author_name');
-         },
-         'genres' => function ($query) {
-            $query->select('Genre.genre_name');
-         },
-         'category' => function ($query) {
-            $query->select('Category.id', 'Category.category_name');
-         },
-         "shelf" => function ($query) {
-            $query->select('Shelf_book.id', 'Shelf_book.book_id', 'Shelf_book.shelf_name', 'Shelf_book.shelf_number');
-         }, "origin" => function ($query) {
-            $query->select('Origin_from.id', 'Origin_from.org_name', 'Origin_from.type');
-         },
-         "added_by"])->get();
+    public function getAll(Request $request)
+    {
+        try {
+            $perPage = $request->get('per_page', 10); // default 10 per page
 
-         return response()->json([
-                'status'=> true,
+            $books = Book::with([
+                'authors' => function ($query) {
+                    $query->select('Authors.author_name');
+                },
+                'genres' => function ($query) {
+                    $query->select('Genre.genre_name');
+                },
+                'category' => function ($query) {
+                    $query->select('Category.id', 'Category.category_name');
+                },
+                'shelf' => function ($query) {
+                    $query->select('Shelf_book.id', 'Shelf_book.book_id', 'Shelf_book.shelf_name', 'Shelf_book.shelf_number');
+                },
+                'origin' => function ($query) {
+                    $query->select('Origin_from.id', 'Origin_from.org_name', 'Origin_from.type');
+                },
+                'added_by'
+            ])->paginate($perPage);
+
+            return response()->json([
+                'status'  => true,
                 'message' => 'Books fetched successfully',
-                "books" => $books
+                'books'   => $books
             ], 200);
-       } catch (Exception $e) {
+        } catch (Exception $e) {
             Log::error('An error occurred: ' . $e->getMessage());
-            return response()->json(['status'=> false,'message' => $e->getMessage()], 500);
-
+            return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
         }
-
-
     }
+
 
     public function getOne($id) {
        try {
