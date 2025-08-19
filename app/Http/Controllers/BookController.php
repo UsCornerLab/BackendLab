@@ -16,19 +16,25 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Log as Logs;
 use App\Services\LogService;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\BooksImport;
+
 
 class BookController extends Controller
 {
 
-    protected function getFilePath($url) {
+
+    protected function getFilePath($url) 
+    {
         $delimiter = "storage";
 
         return $url ? explode($delimiter, $url)[1]: "";
     }
 
-    public function create(Request $request) {
-       try {
-         $data = $request->validate([
+    public function create(Request $request) 
+    {
+        try {
+        $data = $request->validate([
             "title"=> "required|string|max:255",
             "ISBN"=> "sometimes|nullable|string|max:255",
             "publisher"=> "required|string|max:255",
@@ -42,8 +48,10 @@ class BookController extends Controller
             "shelf_name" => "required|string|max:255",
             "shelf_number" => "required|integer",
             "copies" => "required|integer",
-            "added_by" => "required|integer",
+            "added_by" => "nullable|integer",
         ]);
+
+        $user=auth()->user();
 
         $book = new Book([
             'title' => $data['title'],
@@ -53,7 +61,8 @@ class BookController extends Controller
             "accession_number" => $data['accession_number'],
             'added_by'=> $data['added_by'],
             'copies' => $data["copies"],
-            'available_copies' => $data["copies"]
+            'available_copies' => $data["copies"],
+            'added_by' => $user['id']
         ]);
         
         $origin = Origin::firstOrCreate([
@@ -127,38 +136,41 @@ class BookController extends Controller
         }
     }
 
+    public function getAll(Request $request)
+    {
+        try {
+            $perPage = $request->get('per_page', 10); // default 10 per page
 
-    public function getAll() {
-       try {
-         $books = Book::with(['authors' => function ($query) {
-            $query->select('Authors.author_name');
-         },
-         'genres' => function ($query) {
-            $query->select('Genre.genre_name');
-         },
-         'category' => function ($query) {
-            $query->select('Category.id', 'Category.category_name');
-         },
-         "shelf" => function ($query) {
-            $query->select('Shelf_book.id', 'Shelf_book.book_id', 'Shelf_book.shelf_name', 'Shelf_book.shelf_number');
-         }, "origin" => function ($query) {
-            $query->select('Origin_from.id', 'Origin_from.org_name', 'Origin_from.type');
-         },
-         "added_by"])->get();
+            $books = Book::with([
+                'authors' => function ($query) {
+                    $query->select('Authors.author_name');
+                },
+                'genres' => function ($query) {
+                    $query->select('Genre.genre_name');
+                },
+                'category' => function ($query) {
+                    $query->select('Category.id', 'Category.category_name');
+                },
+                'shelf' => function ($query) {
+                    $query->select('Shelf_book.id', 'Shelf_book.book_id', 'Shelf_book.shelf_name', 'Shelf_book.shelf_number');
+                },
+                'origin' => function ($query) {
+                    $query->select('Origin_from.id', 'Origin_from.org_name', 'Origin_from.type');
+                },
+                'added_by'
+            ])->paginate($perPage);
 
-         return response()->json([
-                'status'=> true,
+            return response()->json([
+                'status'  => true,
                 'message' => 'Books fetched successfully',
-                "books" => $books
+                'books'   => $books
             ], 200);
-       } catch (Exception $e) {
+        } catch (Exception $e) {
             Log::error('An error occurred: ' . $e->getMessage());
-            return response()->json(['status'=> false,'message' => $e->getMessage()], 500);
-
+            return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
         }
-
-
     }
+
 
     public function getOne($id) {
        try {
@@ -293,7 +305,8 @@ class BookController extends Controller
         }
     }
 
-    public function delete($id) {
+    public function delete($id) 
+    {
         try {
             $book = Book::find($id);
 
@@ -324,6 +337,7 @@ class BookController extends Controller
         }
 
     }
+
     public function search(Request $request)
     {
 
@@ -452,7 +466,8 @@ class BookController extends Controller
         }
     }
 
-    public function countBook(Request $request , $id) {
+    public function countBook(Request $request , $id) 
+    {
         try {
             $validated = $request->validate([
                 'book_id' => "required|integer",
@@ -467,45 +482,65 @@ class BookController extends Controller
         }
     }
     public function borrow(Request $request,$id)
-{
-    $user = auth()->user();
-    if ($user) {
-        if ($user->verified) {
-            $book = Book::find($id);
-            $status = $book->checkStatus(); 
-            if ($status == "Available") {
-                $borrowRecord = new Borrow();
-                $borrowRecord->user_id = $user->id;
-                $borrowRecord->copy_id = $id; 
-                $borrowRecord->status = 'Borrowed'; 
-                $borrowRecord->save(); 
-                $book->status = 'Borrowed';
-                $book->save();
+    {
+        $user = auth()->user();
+        if ($user) {
+            if ($user->verified) {
+                $book = Book::find($id);
+                $status = $book->checkStatus(); 
+                if ($status == "Available") {
+                    $borrowRecord = new Borrow();
+                    $borrowRecord->user_id = $user->id;
+                    $borrowRecord->copy_id = $id; 
+                    $borrowRecord->status = 'Borrowed'; 
+                    $borrowRecord->save(); 
+                    $book->status = 'Borrowed';
+                    $book->save();
 
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'You have successfully borrowed the book.',
+                        'borrow_record' => $borrowRecord, 
+                    ]);}
+                else{
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'You can borrow books but the book is not Available .',
+                    ]);
+                }         
+            } else {
                 return response()->json([
-                    'status' => true,
-                    'message' => 'You have successfully borrowed the book.',
-                    'borrow_record' => $borrowRecord, 
-                ]);}
-            else{
-                return response()->json([
-                    'status' => true,
-                    'message' => 'You can borrow books but the book is not Available .',
-                ]);
-            }         
+                    'status' => false,
+                    'message' => 'You must verify your account to borrow books.',
+                ], 403); 
+            }
         } else {
             return response()->json([
                 'status' => false,
-                'message' => 'You must verify your account to borrow books.',
-            ], 403); 
+                'message' => 'User not authenticated.',
+            ], 401); // Unauthorized
         }
-    } else {
-        return response()->json([
-            'status' => false,
-            'message' => 'User not authenticated.',
-        ], 401); // Unauthorized
     }
-}
+    
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,csv,txt|max:20480',
+        ]);
+
+        try {
+            Excel::import(new BooksImport, $request->file('file'));
+              return response()->json([
+                    'status' => true,
+                    'message' => 'Books imported successfully'
+                ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Import failed: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
     public function destroy(Request $request, $id)
     {

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('Origin_from', function (Blueprint $table) {
             $table->id();
             $table->string("org_name")->nullable();
-            $table->enum('type',['Donated', 'Purchased']);
+            $table->enum('type',['Donated', 'Purchased', 'Gifted']);
             $table->timestamps();
         });
     }

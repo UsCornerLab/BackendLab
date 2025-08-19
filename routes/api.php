@@ -8,15 +8,20 @@ use App\Http\Controllers\BookSupportRequestController;
 use App\Http\Controllers\SupportedBooksController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\BookRecommendationController;
+use App\Http\Controllers\Api\NewsPostController;
+use App\Http\Controllers\DashboardController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('access');
-
+Route::post('/books/import', [BookController::class, 'import']);
+Route::apiResource('news', NewsPostController::class);
 
 Route::get('/category', [BookController::class, 'getCategories']);
 Route::get('/author', [BookController::class, 'getAuthors']);
 Route::get('/books/featured', [BookController::class, 'featuredBook']);
+Route::get('/dashboard/stats', [DashboardController::class, 'dashboardStats']);
+
 
 Route::get('/book-recommendations', [BookRecommendationController::class, 'getall']);
 
@@ -45,7 +50,7 @@ Route::middleware(['access'])->group(function () {
 
         Route::put('/book-recommendations-approval/{id}', [BookRecommendationController::class, 'approve']);
         Route::put('/book-recommendations-decline/{id}', [BookRecommendationController::class, 'decline']);
-
+    
     });
 
     Route::middleware(["role:librarian"])->group(function () {
@@ -73,5 +78,5 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('/book-recommendations', [BookRecommendationController::class, 'store']);
     Route::get('/book-recommendations/{id}', [BookRecommendationController::class, 'show']);
     Route::put('/book-recommendations/{id}', [BookRecommendationController::class, 'update']);
-   
+
 });
