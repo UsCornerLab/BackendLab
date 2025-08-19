@@ -21,7 +21,7 @@ class DashboardController extends Controller
                 'total_users' => User::count(),
                 'total_news' => NewsPost::count(),
                 'total_categories' => Category::count(),
-                'deactivated_books' => Book::where('is_active', false)->count(),
+                'deactivated_books' => Book::where('active', false)->count(),
                 'deactivated_users' => User::where('verified', false)->count(),
             ];
 

@@ -20,6 +20,8 @@ Route::apiResource('news', NewsPostController::class);
 Route::get('/category', [BookController::class, 'getCategories']);
 Route::get('/author', [BookController::class, 'getAuthors']);
 Route::get('/books/featured', [BookController::class, 'featuredBook']);
+Route::get('/dashboard/stats', [DashboardController::class, 'dashboardStats']);
+
 
 Route::get('/book-recommendations', [BookRecommendationController::class, 'getall']);
 
@@ -48,7 +50,6 @@ Route::middleware(['access'])->group(function () {
 
         Route::put('/book-recommendations-approval/{id}', [BookRecommendationController::class, 'approve']);
         Route::put('/book-recommendations-decline/{id}', [BookRecommendationController::class, 'decline']);
-        Route::get('/dashboard/stats', [DashboardController::class, 'dashboardStats']);
     
     });
 
@@ -77,5 +78,5 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('/book-recommendations', [BookRecommendationController::class, 'store']);
     Route::get('/book-recommendations/{id}', [BookRecommendationController::class, 'show']);
     Route::put('/book-recommendations/{id}', [BookRecommendationController::class, 'update']);
-   
+
 });

@@ -45,8 +45,10 @@ class BookController extends Controller
             "shelf_name" => "required|string|max:255",
             "shelf_number" => "required|integer",
             "copies" => "required|integer",
-            "added_by" => "required|integer",
+            "added_by" => "nullable|integer",
         ]);
+
+        $user=auth()->user();
 
         $book = new Book([
             'title' => $data['title'],
@@ -56,7 +58,8 @@ class BookController extends Controller
             "accession_number" => $data['accession_number'],
             'added_by'=> $data['added_by'],
             'copies' => $data["copies"],
-            'available_copies' => $data["copies"]
+            'available_copies' => $data["copies"],
+            'added_by' => $user['id']
         ]);
         
         $origin = Origin::firstOrCreate([

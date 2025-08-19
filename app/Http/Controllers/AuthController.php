@@ -105,7 +105,7 @@ class AuthController extends Controller
                 "role" => 'sometimes|string|max:225',
                 "id_photo" => "sometimes|file|mimes:jpg,png,jpeg|max:10240",
                 "profile" => "sometimes|file|mimes:jpg,png,jpeg|max:10240",
-
+                "verified" => "sometimes|boolean"
             ]);
 
             
@@ -166,6 +166,10 @@ class AuthController extends Controller
                     $role = Role::firstOrCreate(['role_type' => $request->role], ['role_type' => $request->role]);
                     $user->role_id = $role->id;
                 }
+
+            if ($request->has('verified')) {
+                $user->verified = $request->verified;
+            }
                 
             $user->save();
             
