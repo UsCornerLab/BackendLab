@@ -206,21 +206,21 @@ class BookController extends Controller
     {
         try {
             $data = $request->validate([
-            "title" => "required|string|max:255",
-            "ISBN" => "required|nullable|string|max:255",
-            "publisher" => "required|string|max:255",
-            "publication_date" => "required|date",
+            "title" => "sometimes|string|max:255",
+            "ISBN" => "sometimes|nullable|string|max:255",
+            "publisher" => "sometimes|string|max:255",
+            "publication_date" => "sometimes|date",
             "cover_image" => "sometimes|file|mimes:jpg,jpeg,png|max:10240",
-            "accession_number" => "required|string|max:255",
-            "category" => "required|string",
-            "author" => "required|array",
-            "genre"=> "required|array",
-            "from_type" => "required|string|max:255",
-            "shelf_name" => "required|string|max:255",
-            "shelf_number" => "required|integer",
-            "copies" => "required|integer",
-            "available_copies" => "required|integer",
-            "added_by" => "required|integer",
+            "accession_number" => "sometimes|string|max:255",
+            "category" => "sometimes|string",
+            "author" => "sometimes|array",
+            "genre"=> "sometimes|array",
+            "from_type" => "sometimes|string|max:255",
+            "shelf_name" => "sometimes|string|max:255",
+            "shelf_number" => "sometimes|integer",
+            "copies" => "sometimes|integer",
+            "available_copies" => "sometimes|integer",
+            "added_by" => "sometimes|integer",
         ]);
 
         $book = Book::findOrFail($id);
