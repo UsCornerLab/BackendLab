@@ -36,6 +36,9 @@ return new class extends Migration
             $table->enum("status", ["Available", "Reserved", "Borrowed"])->default("Available");
             $table->foreignId("from")->constrained('Origin_from');
             $table->boolean("active")->default(true);
+            $table->softDeletes();
+            $table->foreignId('deleted_by')->constrained('User')->nullable();
+            $table->string('deleted_remark')->nullable();
             $table->timestamps();
         });
     }
